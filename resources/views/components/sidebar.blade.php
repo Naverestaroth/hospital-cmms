@@ -23,52 +23,62 @@
     <nav class="flex-1 space-y-2 p-4">
 
         <a href="{{ route('dashboard') }}"
-           class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('dashboard') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('dashboard') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Dashboard
         </a>
 
-        <a href="{{ route('assets') }}"
-           class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('assets') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+        <a href="{{ route('assets.index') }}"
+            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('assets.*') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Assets
         </a>
 
-        <a href="{{ route('tickets') }}"
-           class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('tickets') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+        <a href="{{ route('tickets.index') }}"
+            class="block rounded-2xl px-4 py-3 transition
+            {{ request()->routeIs('tickets.*') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Tickets
         </a>
 
-        <a href="{{ route('preventive') }}"
-           class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('preventive') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+        <a href="{{ route('preventives.index') }}"
+
+            class="block rounded-2xl px-4 py-3 transition
+
+            {{ request()->routeIs('preventives.*')
+
+                ? 'bg-emerald-50 font-semibold text-emerald-700'
+
+                : 'text-slate-600 hover:bg-slate-100' }}">
+ 
             Preventive
+
         </a>
 
         <a href="{{ route('corrective') }}"
             class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('corrective') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
-              Corrective
+            Corrective
         </a>
 
         <a href="{{ route('history') }}"
             class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('history') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
-             Maintenance History
+            Maintenance History
         </a>
 
-        <a href="{{ route('vendors') }}"
-           class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('vendors') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+        <a href="{{ route('vendors.index') }}"
+            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('vendors.*') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Vendors
         </a>
 
-        <a href="{{ route('spareparts') }}"
-           class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('spareparts') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+        <a href="{{ route('spareparts.index') }}"
+            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('spareparts.*') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Spareparts
         </a>
 
         <a href="{{ route('reports') }}"
-           class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('reports') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Reports
         </a>
 
         <a href="{{ route('settings') }}"
-           class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('settings') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('settings') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Settings
         </a>
 

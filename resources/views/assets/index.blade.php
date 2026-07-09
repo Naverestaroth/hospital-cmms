@@ -1,176 +1,134 @@
 <x-app-layout>
 
-<div class="space-y-6">
+    <div class="space-y-6">
 
-    <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between">
 
-        <div>
-            <h1 class="text-3xl font-bold text-slate-900">
-                Asset Management
-            </h1>
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900">
+                    Asset Management
+                </h1>
 
-            <p class="mt-2 text-slate-500">
-                Manage hospital medical and non-medical assets.
-            </p>
-        </div>
-
-        <button
-            class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-            + Add Asset
-        </button>
-
-    </div>
-
-    <!-- Search -->
-
-    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-
-        <div class="flex gap-4">
-
-            <input
-                type="text"
-                placeholder="Search asset..."
-                class="flex-1 rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                <p class="mt-2 text-slate-500">
+                    Manage hospital medical and non-medical assets.
+                </p>
+            </div>
 
             <button
-                class="rounded-xl border border-slate-200 px-5 hover:bg-slate-100">
-                Search
+                class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
+                <a
+                    href="{{ route('assets.create') }}"
+                    class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
+                    + Add Asset
+                </a>
             </button>
 
         </div>
 
-    </div>
+        <!-- Search -->
 
-    <!-- Table -->
+        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
 
-    <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex gap-4">
 
-        <table class="min-w-full">
+                <input
+                    type="text"
+                    placeholder="Search asset..."
+                    class="flex-1 rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none">
 
-            <thead class="bg-slate-50">
+                <button
+                    class="rounded-xl border border-slate-200 px-5 hover:bg-slate-100">
+                    Search
+                </button>
 
-                <tr>
+            </div>
 
-                    <th class="px-6 py-4 text-left">Code</th>
+        </div>
 
-                    <th class="px-6 py-4 text-left">Asset Name</th>
+        <!-- Table -->
 
-                    <th class="px-6 py-4 text-left">Room</th>
+        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
 
-                    <th class="px-6 py-4 text-left">Category</th>
+            <table class="min-w-full">
 
-                    <th class="px-6 py-4 text-left">Status</th>
+                <thead class="bg-slate-50">
 
-                    <th class="px-6 py-4 text-center">Action</th>
+                    <tr>
 
-                </tr>
+                        <th class="px-6 py-4 text-left">Code</th>
 
-            </thead>
+                        <th class="px-6 py-4 text-left">Asset Name</th>
 
-            <tbody>
+                        <th class="px-6 py-4 text-left">Room</th>
 
-                <tr class="border-t">
+                        <th class="px-6 py-4 text-left">Category</th>
 
-                    <td class="px-6 py-4">AST-001</td>
+                        <th class="px-6 py-4 text-left">Status</th>
 
-                    <td class="px-6 py-4 font-medium">
-                        Ventilator ICU
-                    </td>
+                        <th class="px-6 py-4 text-center">Action</th>
 
-                    <td class="px-6 py-4">
-                        ICU
-                    </td>
+                    </tr>
 
-                    <td class="px-6 py-4">
-                        Medical
-                    </td>
+                </thead>
 
-                    <td class="px-6 py-4">
-                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">
-                            Active
-                        </span>
-                    </td>
+                <tbody>
+                    @forelse ($assets as $asset)
+                    <tr class="border-t">
+                        <td class="px-6 py-4">
+                            {{ $asset->asset_code }}
+                        </td>
 
-                    <td class="px-6 py-4 text-center">
+                        <td class="px-6 py-4 font-medium">
+                            {{ $asset->asset_name }}
+                        </td>
 
-                        <button class="text-blue-600">
-                            Detail
-                        </button>
+                        <td class="px-6 py-4">
+                            {{ $asset->room }}
+                        </td>
 
-                    </td>
+                        <td class="px-6 py-4">
+                            {{ $asset->category }}
+                        </td>
 
-                </tr>
+                        <td class="px-6 py-4">
+                            @if ($asset->status === 'Active')
+                            <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">
+                                Active
+                                </sßpan>
+                                @elseif ($asset->status === 'Maintenance')
+                                <span class="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
+                                    Maintenance
+                                </span>
+                                @elseif ($asset->status === 'Broken')
+                                <span class="rounded-full bg-red-100 px-3 py-1 text-sm text-red-700">
+                                    Broken
+                                </span>
+                                @else
+                                <span class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
+                                    {{ $asset->status }}
+                                </span>
+                                @endif
+                        </td>
 
-                <tr class="border-t">
+                        <td class="px-6 py-4 text-center">
+                            <button class="text-blue-600 hover:underline">
+                                Detail
+                            </button>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-10 text-center text-slate-500">
+                            No asset data available.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
 
-                    <td class="px-6 py-4">AST-002</td>
+            </table>
 
-                    <td class="px-6 py-4 font-medium">
-                        Patient Monitor
-                    </td>
-
-                    <td class="px-6 py-4">
-                        NICU
-                    </td>
-
-                    <td class="px-6 py-4">
-                        Medical
-                    </td>
-
-                    <td class="px-6 py-4">
-                        <span class="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
-                            Maintenance
-                        </span>
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-
-                        <button class="text-blue-600">
-                            Detail
-                        </button>
-
-                    </td>
-
-                </tr>
-
-                <tr class="border-t">
-
-                    <td class="px-6 py-4">AST-003</td>
-
-                    <td class="px-6 py-4 font-medium">
-                        Generator
-                    </td>
-
-                    <td class="px-6 py-4">
-                        Utility
-                    </td>
-
-                    <td class="px-6 py-4">
-                        Non Medical
-                    </td>
-
-                    <td class="px-6 py-4">
-                        <span class="rounded-full bg-red-100 px-3 py-1 text-sm text-red-700">
-                            Broken
-                        </span>
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-
-                        <button class="text-blue-600">
-                            Detail
-                        </button>
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
+        </div>
 
     </div>
-
-</div>
 
 </x-app-layout>

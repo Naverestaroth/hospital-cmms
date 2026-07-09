@@ -16,22 +16,21 @@
 
             <div>
                 <h1 class="text-3xl font-bold text-slate-900">
-                    Ticket Management
+                    Preventive Maintenance
                 </h1>
 
                 <p class="mt-2 text-slate-500">
-                    Manage hospital medical and non-medical Ticket.
+                    Manage Scheduled Preventive Maintenance.
                 </p>
             </div>
 
-            <button
+            <a
+                href="{{ route('preventives.create') }}"
                 class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-                <a
-                    href="{{ route('tickets.create') }}"
-                    class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-                    + Create Ticket
-                </a>
-            </button>
+
+                + Schedule Maintenance
+
+            </a>
 
         </div>
 
@@ -43,7 +42,7 @@
 
                 <input
                     type="text"
-                    placeholder="Search ticket..."
+                    placeholder="Search maintenance..."
                     class="flex-1 rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none">
 
                 <button
@@ -65,13 +64,11 @@
 
                     <tr>
 
-                        <th class="px-6 py-4 text-left">Ticket ID</th>
-
                         <th class="px-6 py-4 text-left">Asset</th>
 
-                        <th class="px-6 py-4 text-left">Reported By</th>
+                        <th class="px-6 py-4 text-left">Schedule Date</th>
 
-                        <th class="px-6 py-4 text-left">Priority</th>
+                        <th class="px-6 py-4 text-left">Technician</th>
 
                         <th class="px-6 py-4 text-left">Status</th>
 
@@ -82,68 +79,62 @@
                 </thead>
 
                 <tbody>
-                    @forelse ($tickets as $ticket)
+                    @forelse ($preventives as $preventive)
                     <tr class="border-t">
                         <td class="px-6 py-4">
-                            {{ $ticket->ticket_code }}
+                            {{ $preventive->asset->asset_name }}
                         </td>
 
                         <td class="px-6 py-4 font-medium">
-                            {{ $ticket->asset->asset_name }}
+                            {{ $preventive->schedule_date }}
                         </td>
 
                         <td class="px-6 py-4">
-                            {{ $ticket->reported_by }}
+                            {{ $preventive->technician }}
                         </td>
 
                         <td class="px-6 py-4">
-                            {{ $ticket->priority }}
+                            {{ $preventive->status }}
                         </td>
 
                         <td class="px-6 py-4">
-                            @if ($ticket->status === 'Open')
-                            <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">
-                                Open
-                            </span>
-                            @elseif ($ticket->status === 'In Progress')
+                            @if ($preventive->status === 'Scheduled')
+
                             <span class="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
-                                In Progress
+                                Scheduled
                             </span>
-                            @elseif ($ticket->status === 'Completed')
-                            <span class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-700">
+
+                            @elseif ($preventive->status === 'Completed')
+
+                            <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">
                                 Completed
                             </span>
+
                             @else
+
                             <span class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-                                {{ $ticket->status }}
+                                {{ $preventive->status }}
                             </span>
+
                             @endif
                         </td>
 
                         <td class="space-x-3 px-6 py-4 text-center">
 
-                            <a
-                                href="{{ route('tickets.show',$ticket) }}"
-                                class="text-blue-600 hover:underline">
+                            <button class="text-blue-600 hover:underline">
 
                                 Detail
 
-                            </a>
+                            </button>
 
-                            <a
-                                href="{{ route('tickets.edit',$ticket) }}"
-                                class="text-emerald-600 hover:underline">
 
-                                Edit
-
-                            </a>
 
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="6" class="py-10 text-center text-slate-500">
-                            No ticket data available.
+                            No preventive maintenance schedules available.
                         </td>
                     </tr>
                     @endforelse

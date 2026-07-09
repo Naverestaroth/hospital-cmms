@@ -13,7 +13,7 @@
                 </p>
 
                 <h2 class="mt-3 text-4xl font-bold text-slate-900">
-                    1,248
+                    {{ $assetCount }}
                 </h2>
 
                 <p class="mt-2 text-sm text-emerald-600">
@@ -29,7 +29,7 @@
                 </p>
 
                 <h2 class="mt-3 text-4xl font-bold text-red-500">
-                    18
+                    {{ $ticketCount }}
                 </h2>
 
                 <p class="mt-2 text-sm text-slate-500">
@@ -45,7 +45,7 @@
                 </p>
 
                 <h2 class="mt-3 text-4xl font-bold text-amber-500">
-                    35
+                    {{ $preventiveCount }}
                 </h2>
 
                 <p class="mt-2 text-sm text-slate-500">
@@ -61,7 +61,7 @@
                 </p>
 
                 <h2 class="mt-3 text-4xl font-bold text-sky-600">
-                    8
+                    {{ $correctiveCount }}
                 </h2>
 
                 <p class="mt-2 text-sm text-slate-500">
@@ -70,6 +70,45 @@
 
             </div>
 
+
+        </div>
+        
+        <div class="grid gap-6 md:grid-cols-3 xl:grid-cols-4"> 
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
+                <p class="text-sm text-slate-500">
+                    Open Tickets
+                </p>
+
+                <h2 class="mt-3 text-4xl font-bold text-sky-600">
+                    {{ $openTicket }}
+                </h2>
+
+            </div>
+    
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
+                <p class="text-sm text-slate-500">
+                    In Progess
+                </p>
+
+                <h2 class="mt-3 text-4xl font-bold text-sky-600">
+                    {{ $progressTicket }}
+                </h2>
+
+            </div>
+
+            <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+
+                <p class="text-sm text-slate-500">
+                    Completed Tickets
+                </p>
+
+                <h2 class="mt-3 text-4xl font-bold text-sky-600">
+                    {{ $completedTicket }}
+                </h2>
+
+            </div>
         </div>
 
         <!-- Bottom Section -->

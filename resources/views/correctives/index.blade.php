@@ -16,20 +16,20 @@
 
             <div>
                 <h1 class="text-3xl font-bold text-slate-900">
-                    Ticket Management
+                    Corrective Maintenance Management
                 </h1>
 
                 <p class="mt-2 text-slate-500">
-                    Manage hospital medical and non-medical Ticket.
+                    Manage corrective maintenance.
                 </p>
             </div>
 
             <button
                 class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
                 <a
-                    href="{{ route('tickets.create') }}"
+                    href="{{ route('correctives.create') }}"
                     class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-                    + Create Ticket
+                    + Create Corrective Maintenance
                 </a>
             </button>
 
@@ -43,7 +43,8 @@
 
                 <input
                     type="text"
-                    placeholder="Search ticket..."
+                    placeholder="Search corrective
+                    ..."
                     class="flex-1 rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none">
 
                 <button
@@ -69,9 +70,9 @@
 
                         <th class="px-6 py-4 text-left">Asset</th>
 
-                        <th class="px-6 py-4 text-left">Reported By</th>
+                        <th class="px-6 py-4 text-left"> technician</th>
 
-                        <th class="px-6 py-4 text-left">Priority</th>
+                        <th class="px-6 py-4 text-left">Repair Date</th>
 
                         <th class="px-6 py-4 text-left">Status</th>
 
@@ -82,40 +83,40 @@
                 </thead>
 
                 <tbody>
-                    @forelse ($tickets as $ticket)
+                    @forelse ($correctives as $corrective)
                     <tr class="border-t">
                         <td class="px-6 py-4">
-                            {{ $ticket->ticket_code }}
+                            {{ $corrective->ticket->ticket_code}}
                         </td>
 
                         <td class="px-6 py-4 font-medium">
-                            {{ $ticket->asset->asset_name }}
+                            {{ $corrective->ticket->asset->asset_name }}
                         </td>
 
                         <td class="px-6 py-4">
-                            {{ $ticket->reported_by }}
+                            {{ $corrective->technician }}
                         </td>
 
                         <td class="px-6 py-4">
-                            {{ $ticket->priority }}
+                            {{ $corrective->repair_date }}
                         </td>
 
                         <td class="px-6 py-4">
-                            @if ($ticket->status === 'Open')
+                            @if ($corrective->status === 'Open')
                             <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">
                                 Open
                             </span>
-                            @elseif ($ticket->status === 'In Progress')
+                            @elseif ($corrective->status === 'In Progress')
                             <span class="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
                                 In Progress
                             </span>
-                            @elseif ($ticket->status === 'Completed')
+                            @elseif ($corrective->status === 'Completed')
                             <span class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-700">
                                 Completed
                             </span>
                             @else
                             <span class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-                                {{ $ticket->status }}
+                                {{ $corrective->status }}
                             </span>
                             @endif
                         </td>
@@ -123,7 +124,7 @@
                         <td class="space-x-3 px-6 py-4 text-center">
 
                             <a
-                                href="{{ route('tickets.show',$ticket) }}"
+                                href="{{ route('correctives.show',$corrective) }}"
                                 class="text-blue-600 hover:underline">
 
                                 Detail
@@ -131,7 +132,7 @@
                             </a>
 
                             <a
-                                href="{{ route('tickets.edit',$ticket) }}"
+                                href="{{ route('correctives.edit',$corrective) }}"
                                 class="text-emerald-600 hover:underline">
 
                                 Edit
@@ -143,7 +144,7 @@
                     @empty
                     <tr>
                         <td colspan="6" class="py-10 text-center text-slate-500">
-                            No ticket data available.
+                            No corrective data available.
                         </td>
                     </tr>
                     @endforelse

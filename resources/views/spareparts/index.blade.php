@@ -1,33 +1,118 @@
 <x-app-layout>
 
-<div class="space-y-6">
+    <div class="space-y-6">
 
-    <h1 class="text-3xl font-bold text-slate-900">
-        Sparepart Inventory
-    </h1>
+        <div class="flex items-center justify-between">
 
-    <div class="grid gap-6 md:grid-cols-3">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900">
+                    Spareparts
+                </h1>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 class="font-semibold">Bearing</h3>
-            <p class="mt-2 text-3xl font-bold">35</p>
-            <p class="text-slate-500">Stock</p>
+                <p class="mt-2 text-slate-500">
+                    Manage hospital sparepart inventory.
+                </p>
+            </div>
+
+            <a
+                href="{{ route('spareparts.create') }}"
+                class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white hover:bg-emerald-700">
+
+                + Add Sparepart
+
+            </a>
+
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 class="font-semibold">Sensor</h3>
-            <p class="mt-2 text-3xl font-bold">18</p>
-            <p class="text-slate-500">Stock</p>
+        <!-- Search -->
+
+        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+
+            <div class="flex gap-4">
+
+                <input
+                    type="text"
+                    placeholder="Search asset..."
+                    class="flex-1 rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+
+                <button
+                    class="rounded-xl border border-slate-200 px-5 hover:bg-slate-100">
+                    Search
+                </button>
+
+            </div>
+
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 class="font-semibold">Fuse</h3>
-            <p class="mt-2 text-3xl font-bold">120</p>
-            <p class="text-slate-500">Stock</p>
+        <!-- Table -->
+
+        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+
+            <table class="min-w-full">
+
+                <thead class="bg-slate-50">
+
+                    <tr>
+
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Stock</th>
+                        <th>Unit</th>
+                        <th>Location</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+                    @forelse($spareparts as $sparepart)
+
+                    <tr>
+
+                        <td>{{ $sparepart->part_code }}</td>
+
+                        <td>{{ $sparepart->part_name }}</td>
+
+                        <td>{{ $sparepart->stock }}</td>
+
+                        <td>{{ $sparepart->unit }}</td>
+
+                        <td>{{ $sparepart->location }}</td>
+
+                        <td>
+
+                            <a
+                                href="{{ route('spareparts.edit',$sparepart) }}"
+                                class="text-emerald-600 hover:underline">
+
+                                Edit
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    @empty
+
+                    <tr>
+
+                        <td colspan="6" class="py-10 text-center">
+
+                            No sparepart data available.
+
+                        </td>
+
+                    </tr>
+
+                    @endforelse
+                </tbody>
+
+            </table>
+
         </div>
 
     </div>
-
-</div>
 
 </x-app-layout>

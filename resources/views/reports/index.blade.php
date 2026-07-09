@@ -1,39 +1,99 @@
 <x-app-layout>
 
-<div class="space-y-6">
+    <div class="space-y-6">
 
-    <h1 class="text-3xl font-bold text-slate-900">
-        Reports
-    </h1>
+        <h1 class="text-3xl font-bold">
 
-    <div class="grid gap-6 md:grid-cols-2">
+            Reports
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        </h1>
 
-            <h3 class="font-semibold text-lg">
-                Asset Report
-            </h3>
+        <div class="grid grid-cols-3 gap-6">
 
-            <p class="mt-2 text-slate-500">
-                Total Assets : 1,248
-            </p>
+            <div class="rounded-2xl bg-white p-6 shadow">
 
-        </div>
+                <h2>Assets</h2>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+                <p class="mt-3 text-4xl font-bold">
 
-            <h3 class="font-semibold text-lg">
-                Maintenance Report
-            </h3>
+                    {{ $assetCount }}
 
-            <p class="mt-2 text-slate-500">
-                Completed : 125
-            </p>
+                </p>
+
+            </div>
+
+            <div class="rounded-2xl bg-white p-6 shadow">
+
+                <h2>Tickets</h2>
+
+                <p class="mt-3 text-4xl font-bold">
+
+                    {{ $ticketCount }}
+
+                </p>
+
+            </div>
+
+            <div class="rounded-2xl bg-white p-6 shadow">
+
+                <h2>Preventive</h2>
+
+                <p class="mt-3 text-4xl font-bold">
+
+                    {{ $preventiveCount }}
+
+                </p>
+
+            </div>
+
+            <div class="rounded-2xl bg-white p-6 shadow">
+
+                <h2>Corrective</h2>
+
+                <p class="mt-3 text-4xl font-bold">
+
+                    {{ $correctiveCount }}
+
+                </p>
+
+            </div>
+
+            <div class="rounded-2xl bg-white p-6 shadow">
+
+                <h2>Spareparts</h2>
+
+                <p class="mt-3 text-4xl font-bold">
+
+                    {{ $sparepartCount }}
+
+                </p>
+
+            </div>
+
+            <div class="rounded-2xl bg-white p-6 shadow">
+
+                <h2>Vendors</h2>
+
+                <p class="mt-3 text-4xl font-bold">
+
+                    {{ $vendorCount }}
+
+                </p>
+
+            </div>
 
         </div>
 
     </div>
+   
+    <a
 
-</div>
+        href="{{ route('reports.assets.pdf') }}"
+
+        class="rounded-xl bg-red-600 px-5 py-3 text-white">
+
+        Export PDF
+
+    </a>
 
 </x-app-layout>
