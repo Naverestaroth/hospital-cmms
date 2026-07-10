@@ -47,13 +47,13 @@
                 ? 'bg-emerald-50 font-semibold text-emerald-700'
 
                 : 'text-slate-600 hover:bg-slate-100' }}">
- 
+
             Preventive
 
         </a>
 
-        <a href="{{ route('corrective') }}"
-            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('corrective') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+        <a href="{{ route('correctives.index') }}"
+            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('correctives.*') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Corrective
         </a>
 
@@ -70,6 +70,11 @@
         <a href="{{ route('spareparts.index') }}"
             class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('spareparts.*') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
             Spareparts
+        </a>
+
+        <a href="{{ route('documents.index') }}"
+            class="block rounded-2xl px-4 py-3 transition {{ request()->routeIs('documents.*') ? 'bg-emerald-50 font-semibold text-emerald-700' : 'text-slate-600 hover:bg-slate-100' }}">
+            document Center
         </a>
 
         <a href="{{ route('reports') }}"

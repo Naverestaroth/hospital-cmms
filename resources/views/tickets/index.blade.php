@@ -24,14 +24,12 @@
                 </p>
             </div>
 
-            <button
+            <a
+                href="{{ route('tickets.create') }}"
                 class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-                <a
-                    href="{{ route('tickets.create') }}"
-                    class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-                    + Create Ticket
-                </a>
-            </button>
+                + Create Ticket
+            </a>
+
 
         </div>
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\DocumentController;
 
 Route::redirect('/', '/login');
 
@@ -20,6 +21,8 @@ Route::middleware('auth')->group(function () {
         ->name('dashboard');
 
     Route::resource('assets', AssetController::class);
+
+    Route::resource('documents', DocumentController::class);
 
     Route::resource('tickets', TicketController::class);
 
@@ -43,7 +46,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::view('/corrective', 'corrective.index')->name('corrective');
     Route::get('/history', [HistoryController::class, 'index'])
         ->name('history');
 });

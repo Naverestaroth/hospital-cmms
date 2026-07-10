@@ -14,14 +14,14 @@
                 </p>
             </div>
 
-            <button
+
+
+            <a
+                href="{{ route('assets.create') }}"
                 class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-                <a
-                    href="{{ route('assets.create') }}"
-                    class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-                    + Add Asset
-                </a>
-            </button>
+                + Add Asset
+            </a>
+
 
         </div>
 
@@ -53,7 +53,7 @@
 
                 <thead class="bg-slate-50">
 
-                    <tr>
+                    <tr class="border-t transition hover:bg-slate-50">
 
                         <th class="px-6 py-4 text-left">Code</th>
 
@@ -94,20 +94,20 @@
                             @if ($asset->status === 'Active')
                             <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">
                                 Active
-                                </sßpan>
-                                @elseif ($asset->status === 'Maintenance')
-                                <span class="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
-                                    Maintenance
-                                </span>
-                                @elseif ($asset->status === 'Broken')
-                                <span class="rounded-full bg-red-100 px-3 py-1 text-sm text-red-700">
-                                    Broken
-                                </span>
-                                @else
-                                <span class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-                                    {{ $asset->status }}
-                                </span>
-                                @endif
+                            </span>
+                            @elseif ($asset->status === 'Maintenance')
+                            <span class="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
+                                Maintenance
+                            </span>
+                            @elseif ($asset->status === 'Broken')
+                            <span class="rounded-full bg-red-100 px-3 py-1 text-sm text-red-700">
+                                Broken
+                            </span>
+                            @else
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
+                                {{ $asset->status }}
+                            </span>
+                            @endif
                         </td>
 
                         <td class="px-6 py-4 text-center">

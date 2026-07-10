@@ -9,15 +9,38 @@ use App\Models\Corrective;
 use App\Models\Sparepart;
 use App\Models\Vendor;
 
+
+
 class DashboardController extends Controller
 {
     public function index()
     {
+        $totalTicket = Ticket::count();
+        $openTicket = Ticket::where('status', 'Open')->count();
+        $progressTicket = Ticket::where('status', 'In Progress')->count();
+        $completedTicket = Ticket::where('status', 'Completed')->count();
+        $recentTickets = Ticket::with('asset')
+            ->latest()
+            ->take(5)
+            ->get();
+
         return view('dashboard', [
 
             'assetCount' => Asset::count(),
 
             'ticketCount' => Ticket::count(),
+
+            'totalTicket' => $totalTicket,
+
+            'openTicket' => $openTicket,
+
+            'progressTicket' => $progressTicket,
+
+            'recentTickets' => $recentTickets,
+
+            'completedTicket' => $completedTicket,
+
+            'maintenanceCount' => Preventive::count() + Corrective::count(),
 
             'preventiveCount' => Preventive::count(),
 
@@ -27,11 +50,11 @@ class DashboardController extends Controller
 
             'vendorCount' => Vendor::count(),
 
-            'openTicket' => Ticket::where('status', 'Open')->count(),
+            'openPercent' => $totalTicket ? ($openTicket / $totalTicket) * 100 : 0,
 
-            'progressTicket' => Ticket::where('status', 'In Progress')->count(),
+            'progressPercent' => $totalTicket ? ($progressTicket / $totalTicket) * 100 : 0,
 
-            'completedTicket' => Ticket::where('status', 'Completed')->count(),
+            'completedPercent' => $totalTicket ? ($completedTicket / $totalTicket) * 100 : 0,
 
         ]);
     }
