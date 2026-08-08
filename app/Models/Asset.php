@@ -7,29 +7,47 @@ use Illuminate\Database\Eloquent\Model;
 class Asset extends Model
 {
     protected $fillable = [
-
         'asset_code',
         'asset_name',
-        'category',
         'brand',
-        'model',
+        'type',
         'serial_number',
         'room',
-        'purchase_date',
+        'procurement_year',
         'status',
         'description',
-
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'procurement_year' => 'string',
+    ];
+
+    public function getProcurementYearAttribute($value)
     {
-        return [
-            'purchase_date' => 'date',
-        ];
+        if (empty($value)) {
+            return null;
+        }
+
+        return substr((string) $value, 0, 4);
     }
 
     public function preventives()
     {
-        return $this->hasMany(Preventive::class);
+        return $this->hasMany(Preventive::class, 'asset_code', 'asset_code')->orderBy('schedule_date', 'desc');
+    }
+
+    public function correctives()
+    {
+        return $this->hasMany(Corrective::class, 'asset_code', 'asset_code')->orderBy('repair_date', 'desc');
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class)->orderBy('created_at', 'desc');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class)->orderBy('created_at', 'desc');
     }
 }

@@ -2,17 +2,19 @@
 
     <div class="space-y-6">
 
+        @if(session('success'))
+        <div class="rounded-xl bg-green-100 p-4 text-green-700">
+            {{ session('success') }}
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="rounded-xl bg-red-100 p-4 text-red-700">
+            {{ session('error') }}
+        </div>
+        @endif
+
         <div class="flex items-center justify-between">
-
-            @if(session('success'))
-
-            <div class="mb-6 rounded-xl bg-green-100 p-4 text-green-700">
-
-                {{ session('success') }}
-
-            </div>
-
-            @endif
 
             <div>
                 <h1 class="text-3xl font-bold text-slate-900">
@@ -24,12 +26,19 @@
                 </p>
             </div>
 
-            <a
-                href="{{ route('correctives.create') }}"
-                class="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
-                + Create
-            </a>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('correctives.import.upload') }}" class="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                    Import
+                </a>
 
+                <a
+                    href="{{ route('correctives.create') }}"
+                    class="ds-button-primary">
+
+                    + New Corrective
+
+                </a>
+            </div>
 
         </div>
 
@@ -37,44 +46,118 @@
 
         <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
 
-            <div class="flex gap-4">
+            <form action="{{ route('correctives.index') }}" method="GET" class="flex gap-4">
 
                 <input
                     type="text"
-                    placeholder="Search corrective
-                    ..."
-                    class="flex-1 rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                    name="search"
+                    placeholder="Search corrective..."
+                    class="flex-1 rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none"
+                    value="{{ request('search') }}">
 
                 <button
+                    type="submit"
                     class="rounded-xl border border-slate-200 px-5 hover:bg-slate-100">
                     Search
                 </button>
 
-            </div>
+                <a href="{{ route('correctives.index') }}" class="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm hover:bg-slate-100">Reset</a>
+
+            </form>
 
         </div>
 
         <!-- Table -->
 
-        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
 
             <table class="min-w-full">
 
                 <thead class="bg-slate-50">
 
-                    <tr>
+                    @php
+                    function sortUrl($field)
+                    {
+                        return request()->fullUrlWithQuery([
+                            'sort' => $field,
+                            'direction' => request('sort') === $field && request('direction') === 'asc' ? 'desc' : 'asc'
+                        ]);
+                    }
+                    @endphp
 
-                        <th class="px-6 py-4 text-left">Ticket ID</th>
+                    <tr class="border-t transition hover:bg-slate-50">
 
-                        <th class="px-6 py-4 text-left">Asset</th>
+                        <th class="px-6 py-4 text-left">No</th>
 
-                        <th class="px-6 py-4 text-left"> technician</th>
+                        <th class="px-6 py-4 text-left">
+                            <a href="{{ sortUrl('repair_date') }}">
+                                Tanggal Laporan
+                            </a>
+                        </th>
 
-                        <th class="px-6 py-4 text-left">Repair Date</th>
+                        <th class="px-6 py-4 text-left">Jam Laporan</th>
 
-                        <th class="px-6 py-4 text-left">Status</th>
+                        <th class="px-6 py-4 text-left">Jam Visit</th>
 
-                        <th class="px-6 py-4 text-center">Action</th>
+                        <th class="px-6 py-4 text-left">
+                            <a href="{{ sortUrl('response_time') }}">
+                                Time Response
+                            </a>
+                        </th>
+
+                        <th class="px-6 py-4 text-left">Service Report Type</th>
+
+                        <th class="px-6 py-4 text-left">
+                            <a href="{{ sortUrl('room') }}">
+                                Ruangan
+                            </a>
+                        </th>
+
+                        <th class="px-6 py-4 text-left">
+                            <a href="{{ sortUrl('asset_name') }}">
+                                Nama Alat
+                            </a>
+                        </th>
+
+                        <th class="px-6 py-4 text-left">
+                            <a href="{{ sortUrl('brand') }}">
+                                Merk
+                            </a>
+                        </th>
+
+                        <th class="px-6 py-4 text-left">
+                            <a href="{{ sortUrl('type') }}">
+                                Type
+                            </a>
+                        </th>
+
+                        <th class="px-6 py-4 text-left">
+                            <a href="{{ sortUrl('serial_number') }}">
+                                Serial Number
+                            </a>
+                        </th>
+
+                        <th class="px-6 py-4 text-left">Tanggal Instal</th>
+
+                        <th class="px-6 py-4 text-left">Distributor</th>
+
+                        <th class="px-6 py-4 text-left">Pemeriksaan</th>
+
+                        <th class="px-6 py-4 text-left">Problem / Diagnosa</th>
+
+                        <th class="px-6 py-4 text-left">Solution</th>
+
+                        <th class="px-6 py-4 text-left">Sparepart</th>
+
+                        <th class="px-6 py-4 text-left">Jumlah Sparepart</th>
+
+                        <th class="px-6 py-4 text-left">Hasil Pemeriksaan</th>
+
+                        <th class="px-6 py-4 text-left">Teknisi</th>
+
+                        <th class="px-6 py-4 text-left">User</th>
+
+                        <th class="px-6 py-4 text-center">Actions</th>
 
                     </tr>
 
@@ -83,65 +166,129 @@
                 <tbody>
                     @forelse ($correctives as $corrective)
                     <tr class="border-t">
-                        <td class="px-6 py-4">
-                            {{ $corrective->ticket->ticket_code}}
-                        </td>
-
-                        <td class="px-6 py-4 font-medium">
-                            {{ $corrective->ticket->asset->asset_name }}
-                        </td>
 
                         <td class="px-6 py-4">
-                            {{ $corrective->technician }}
+                            {{ $correctives->firstItem() + $loop->index }}
                         </td>
 
                         <td class="px-6 py-4">
                             {{ $corrective->repair_date }}
                         </td>
 
+                        <td class="px-6 py-4"> {{ $corrective->jam_laporan }}</td>
+
+                        <td class="px-6 py-4"> {{ $corrective->jam_visit }}</td>
+
                         <td class="px-6 py-4">
-                            @if ($corrective->status === 'Open')
-                            <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-700">
-                                Open
-                            </span>
-                            @elseif ($corrective->status === 'In Progress')
-                            <span class="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-700">
-                                In Progress
-                            </span>
-                            @elseif ($corrective->status === 'Completed')
-                            <span class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-700">
-                                Completed
-                            </span>
-                            @else
-                            <span class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-                                {{ $corrective->status }}
-                            </span>
-                            @endif
+                            {{ $corrective->response_time ?? '-' }}
                         </td>
 
-                        <td class="space-x-3 px-6 py-4 text-center">
+                        <td class="px-6 py-4">
+                            @php
+                                $serviceTypes = is_array($corrective->service_type) ? $corrective->service_type : [];
+                            @endphp
+                            {{ !empty($serviceTypes) ? implode(', ', $serviceTypes) : '-' }}
+                        </td>
 
-                            <a
-                                href="{{ route('correctives.show',$corrective) }}"
-                                class="text-blue-600 hover:underline">
+                        <td class="px-6 py-4">
+                            {{ $corrective->room ?? '-' }}
+                        </td>
 
-                                Detail
+                        <td class="px-6 py-4 font-medium">
+                            {{ $corrective->asset_name }}
+                        </td>
 
-                            </a>
+                        <td class="px-6 py-4">
+                            {{ $corrective->brand ?? '-' }}
+                        </td>
 
-                            <a
-                                href="{{ route('correctives.edit',$corrective) }}"
-                                class="text-emerald-600 hover:underline">
+                        <td class="px-6 py-4">
+                            {{ $corrective->type ?? '-' }}
+                        </td>
 
-                                Edit
+                        <td class="px-6 py-4">
+                            {{ $corrective->serial_number ?? '-' }}
+                        </td>
 
-                            </a>
+                         <td class="px-6 py-4">
+                            {{ $corrective->tanggal_instal ?? '-' }}
+                        </td>
 
+                         <td class="px-6 py-4">
+                            {{ $corrective->distributor ?? '-' }}
+                        </td>
+
+
+                        <td class="px-6 py-4">
+                            @php
+                                $inspections = is_array($corrective->inspection) ? $corrective->inspection : [];
+                            @endphp
+                            {{ !empty($inspections) ? implode(', ', $inspections) : '-' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $corrective->problem ?? '-' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $corrective->solution ?? '-' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $corrective->sparepart ?? '-' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $corrective->quantity ?? '-' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $corrective->inspection_result ?? '-' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            @php
+                                $technicians = is_array($corrective->technician) ? $corrective->technician : [];
+                            @endphp
+                            {{ !empty($technicians) ? implode(', ', $technicians) : '-' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $corrective->user_name ?? '-' }}
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-4">
+                                <a
+                                    href="{{ route('correctives.show',$corrective) }}"
+                                    class="text-blue-600 hover:underline">
+                                    View
+                                </a>
+
+                                <a
+                                    href="{{ route('correctives.edit',$corrective) }}"
+                                    class="text-emerald-700 hover:underline">
+                                    Edit
+                                </a>
+
+                                <form
+                                    action="{{ route('correctives.destroy', $corrective) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Are you sure you want to delete this corrective maintenance report?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button
+                                        type="submit"
+                                        class="text-red-600 hover:underline">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-10 text-center text-slate-500">
+                        <td colspan="22" class="py-10 text-center text-slate-500">
                             No corrective data available.
                         </td>
                     </tr>
@@ -150,6 +297,11 @@
 
             </table>
 
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6">
+            {{ $correctives->links() }}
         </div>
 
     </div>

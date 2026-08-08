@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\Asset;
 use Illuminate\Http\Request;
 
 class DocumentController extends Controller
@@ -10,11 +11,29 @@ class DocumentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $documents = Document::with('asset')->latest()->get();
+        $sortableColumns = ['document_code', 'title', 'document_type', 'issue_date'];
+        $sortField = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'desc');
 
-        return view('documents.index', compact('documents'));
+        if (!in_array($sortField, $sortableColumns) && $sortField !== 'created_at') {
+            $sortField = 'created_at';
+        }
+
+        $documents = Document::with('asset')
+            ->when($request->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('document_code', 'like', "%{$search}%")
+                        ->orWhere('title', 'like', "%{$search}%")
+                        ->orWhere('document_type', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy($sortField, $sortDirection)
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('documents.index', compact('documents', 'sortField', 'sortDirection'));
     }
 
     /**
@@ -22,7 +41,8 @@ class DocumentController extends Controller
      */
     public function create()
     {
-        //
+        $assets = Asset::orderBy('asset_name')->get();
+        return view('documents.create', compact('assets'));
     }
 
     /**
@@ -30,7 +50,63 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $request->validate([
+
+            'document_code' => 'required|unique:documents',
+
+            'title' => 'required',
+
+            'document_type' => 'required',
+
+            'asset_id' => 'nullable|exists:assets,id',
+
+            'revision' => 'nullable',
+
+            'expiry_date' => 'nullable|date',
+
+            'expiry_date' => 'nullable|date',
+
+            'description' => 'nullable',
+
+            'file' => 'nullable|file|mimes:pdf|max:10240',
+
+        ]);
+
+        $filePath = null;
+
+        if ($request->hasFile('file')) {
+
+            $filePath = $request
+                ->file('file')
+                ->store('documents', 'public');
+        }
+
+        Document::create([
+
+            'document_code' => $request->document_code,
+
+            'title' => $request->title,
+
+            'document_type' => $request->document_type,
+
+            'asset_id' => $request->asset_id,
+
+            'revision' => $request->revision,
+
+            'issue_date' => $request->issue_date,
+
+            'expiry_date' => $request->expiry_date,
+
+            'description' => $request->description,
+
+            'file_path' => $filePath,
+
+        ]);
+
+        return redirect()
+            ->route('documents.index')
+            ->with('success', 'Document uploaded successfully.');
     }
 
     /**
@@ -38,7 +114,7 @@ class DocumentController extends Controller
      */
     public function show(Document $document)
     {
-        //
+        return view('documents.show', compact('document'));
     }
 
     /**
@@ -46,7 +122,8 @@ class DocumentController extends Controller
      */
     public function edit(Document $document)
     {
-        //
+        $assets = Asset::orderBy('asset_name')->get();
+        return view('documents.edit', compact('document', 'assets'));
     }
 
     /**
@@ -54,7 +131,71 @@ class DocumentController extends Controller
      */
     public function update(Request $request, Document $document)
     {
-        //
+        $request->validate([
+
+            'document_code' => 'required|unique:documents,document_code,' . $document->id,
+
+            'title' => 'required',
+
+            'document_type' => 'required',
+
+            'asset_id' => 'nullable|exists:assets,id',
+
+            'revision' => 'nullable',
+
+            'issue_date' => 'required|date',
+
+            'expiry_date' => 'nullable|date',
+
+            'description' => 'nullable',
+
+            'file' => 'nullable|file|mimes:pdf|max:10240',
+
+        ]);
+
+        if ($request->hasFile('file')) {
+
+            $document->file_path = $request
+                ->file('file')
+                ->store('documents', 'public');
+        }
+
+        $document->update([
+
+            'document_code' => $request->document_code,
+
+            'title' => $request->title,
+
+            'document_type' => $request->document_type,
+
+            'asset_id' => $request->asset_id,
+
+            'revision' => $request->revision,
+
+            'issue_date' => $request->issue_date,
+
+            'expiry_date' => $request->expiry_date,
+
+            'description' => $request->description,
+
+            'file_path' => $document->file_path,
+
+        ]);
+
+        return redirect()
+            ->route('documents.index')
+            ->with('success', 'Document updated successfully.');
+    }
+
+    public function view(Document $document)
+    {
+        if (!$document->file_path) {
+            abort(404);
+        }
+
+        return response()->file(
+            storage_path('app/public/' . $document->file_path)
+        );
     }
 
     /**
@@ -62,6 +203,10 @@ class DocumentController extends Controller
      */
     public function destroy(Document $document)
     {
-        //
+        $document->delete();
+
+        return redirect()
+            ->route('documents.index')
+            ->with('success', 'Document deleted successfully.');
     }
 }

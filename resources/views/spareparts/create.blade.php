@@ -124,12 +124,22 @@
 
             </div>
 
-            <div class="mt-8">
+            <div class="create-button">
+
+                <a
+
+                    href="{{ route('spareparts.index') }}"
+
+                    class="rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100">
+
+                    Cancel
+
+                </a>
 
                 <button
 
                     class="rounded-2xl bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700">
-                    Save Sparepart
+                    Save Vendor
 
                 </button>
 

@@ -1,154 +1,252 @@
 <x-app-layout>
 
-<div class="max-w-4xl">
+    <div class="max-w-4xl">
 
-    <h1 class="mb-8 text-3xl font-bold text-slate-900">
-        Add New Asset
-    </h1>
+        <h1 class="mb-8 text-3xl font-bold text-slate-900">
+            Add New Asset
+        </h1>
 
-    <form
-        action="{{ route('assets.store') }}"
-        method="POST"
-        class="space-y-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <form
+            action="{{ route('assets.store') }}"
+            method="POST"
+            class="space-y-6">
 
-        @csrf
+            @csrf
 
-        <div class="grid gap-6 md:grid-cols-2">
+            @if ($errors->any())
+                <div class="rounded-2xl border border-red-200 bg-red-50 p-4">
+                    <div class="text-sm font-semibold text-red-700">
+                        Please fix the following errors:
+                    </div>
+                    <ul class="mt-2 list-disc pl-6 text-sm text-red-700">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-            <div>
-                <label class="mb-2 block font-medium">
-                    Asset Code
-                </label>
+            {{-- 1. Location (Room) --}}
+            <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
 
-                <input
-                    type="text"
-                    name="asset_code"
-                    required
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3">
-            </div>
+                <h2 class="mb-6 text-xl font-bold text-slate-900">
+                    Location
+                </h2>
 
-            <div>
-                <label class="mb-2 block font-medium">
-                    Asset Name
-                </label>
-
-                <input
-                    type="text"
-                    name="asset_name"
-                    required
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3">
-            </div>
-
-            <div>
-                <label class="mb-2 block font-medium">
-                    Category
+                <label class="mb-2 block text-sm font-medium text-slate-700">
+                    Room
                 </label>
 
                 <select
-                    name="category"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3">
+                    name="room"
+                    class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
 
-                    <option>Medical</option>
-                    <option>Non Medical</option>
+                    <option value="">-- Select Room --</option>
+
+                    @foreach($rooms as $room)
+                    <option
+                        value="{{ $room }}"
+                        {{ old('room') == $room ? 'selected' : '' }}>
+                        {{ $room }}
+                    </option>
+                    @endforeach
 
                 </select>
 
             </div>
 
-            <div>
-                <label class="mb-2 block font-medium">
-                    Room
-                </label>
+            {{-- 2. Asset Information --}}
+            <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
 
-                <input
-                    type="text"
-                    name="room"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3">
+                <h2 class="mb-6 text-xl font-bold text-slate-900">
+                    Asset Information
+                </h2>
+
+                <div class="grid gap-6 md:grid-cols-2">
+
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-slate-700">
+                            Asset Code
+                        </label>
+
+                        <input
+                            type="text"
+                            name="asset_code"
+                            value="{{ old('asset_code') }}"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-slate-700">
+                            Asset Name
+                        </label>
+
+                        <input
+                            type="text"
+                            name="asset_name"
+                            value="{{ old('asset_name') }}"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-slate-700">
+                            Brand
+                        </label>
+
+                        <input
+                            type="text"
+                            name="brand"
+                            value="{{ old('brand') }}"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-slate-700">
+                            Type
+                        </label>
+
+                        <input
+                            type="text"
+                            name="type"
+                            value="{{ old('type') }}"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-slate-700">
+                            Serial Number
+                        </label>
+
+                        <input
+                            type="text"
+                            name="serial_number"
+                            value="{{ old('serial_number') }}"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-slate-700">
+                            Procurement Year
+                        </label>
+
+                        <input
+                            type="text"
+                            name="procurement_year"
+                            value="{{ old('procurement_year') }}"
+                            placeholder="Tahun"
+                            class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                    </div>
+
+                </div>
+
             </div>
 
-            <div>
-                <label class="mb-2 block font-medium">
-                    Brand
-                </label>
+            {{-- 3. Asset Status & Additional Information --}}
+            <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm space-y-6">
 
-                <input
-                    type="text"
-                    name="brand"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3">
+                <h2 class="text-xl font-bold text-slate-900">
+                    Asset Status
+                </h2>
+
+                @php
+                    $predefinedStatuses = ['berfungsi', 'dalam perbaikan', 'rusak', 'proses penghapusan'];
+                    $oldStatus = old('status', old('status_select'));
+                    $oldStatusCustom = old('status_custom');
+                    $isCustom = old('status_select') === 'Other' || (!empty($oldStatus) && !in_array($oldStatus, $predefinedStatuses) && $oldStatus !== 'Other');
+                    $selectedOption = $isCustom ? 'Other' : ($oldStatus ?? '');
+                @endphp
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-700">
+                        Status
+                    </label>
+
+                    <select
+                        name="status_select"
+                        id="asset-status-select"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+
+                        <option value="">-- Select Status --</option>
+                        <option value="berfungsi" {{ $selectedOption === 'berfungsi' ? 'selected' : '' }}>Berfungsi</option>
+                        <option value="dalam perbaikan" {{ $selectedOption === 'dalam perbaikan' ? 'selected' : '' }}>dalam perbaikan</option>
+                        <option value="rusak" {{ $selectedOption === 'rusak' ? 'selected' : '' }}>Rusak</option>
+                        <option value="proses penghapusan" {{ $selectedOption === 'proses penghapusan' ? 'selected' : '' }}>Proses Penghapusan</option>
+                        <option value="Other" {{ $selectedOption === 'Other' ? 'selected' : '' }}>Other</option>
+
+                    </select>
+                </div>
+
+                {{-- Custom Status Input (Shown when "Other" is selected) --}}
+                <div id="custom-status-container" class="{{ $selectedOption === 'Other' ? '' : 'hidden' }}">
+                    <label class="mb-2 block text-sm font-medium text-slate-700">
+                        Custom Status
+                    </label>
+                    <input
+                        type="text"
+                        name="status_custom"
+                        id="asset-status-custom"
+                        value="{{ $oldStatusCustom ?: ($isCustom ? $oldStatus : '') }}"
+                        placeholder="e.g. Rusak kabel elektroda"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-700">
+                        Description / Lain-lain
+                    </label>
+
+                    <textarea
+                        name="description"
+                        rows="3"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">{{ old('description') }}</textarea>
+                </div>
+
             </div>
 
-            <div>
-                <label class="mb-2 block font-medium">
-                    Model
-                </label>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const statusSelect = document.getElementById('asset-status-select');
+                    const customContainer = document.getElementById('custom-status-container');
+                    const customInput = document.getElementById('asset-status-custom');
 
-                <input
-                    type="text"
-                    name="model"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3">
+                    function toggleCustomStatus() {
+                        if (statusSelect && statusSelect.value === 'Other') {
+                            customContainer.classList.remove('hidden');
+                        } else if (customContainer) {
+                            customContainer.classList.add('hidden');
+                        }
+                    }
+
+                    if (statusSelect) {
+                        statusSelect.addEventListener('change', toggleCustomStatus);
+                        toggleCustomStatus();
+                    }
+                });
+            </script>
+
+
+            <div class="flex justify-end gap-4">
+
+                <a
+                    href="{{ route('assets.index') }}"
+                    class="rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 hover:bg-slate-100">
+
+                    Cancel
+
+                </a>
+
+                <button
+                    type="submit"
+                    class="rounded-2xl bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700">
+
+                    Save Asset
+
+                </button>
+
             </div>
 
-            <div>
-                <label class="mb-2 block font-medium">
-                    Serial Number
-                </label>
+        </form>
 
-                <input
-                    type="text"
-                    name="serial_number"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3">
-            </div>
-
-            <div>
-                <label class="mb-2 block font-medium">
-                    Purchase Date
-                </label>
-
-                <input
-                    type="date"
-                    name="purchase_date"
-                    class="w-full rounded-xl border border-slate-300 px-4 py-3">
-            </div>
-
-        </div>
-
-        <div>
-
-            <label class="mb-2 block font-medium">
-                Description
-            </label>
-
-            <textarea
-                name="description"
-                rows="4"
-                class="w-full rounded-xl border border-slate-300 px-4 py-3"></textarea>
-
-        </div>
-
-        <input
-            type="hidden"
-            name="status"
-            value="Active">
-
-        <div class="flex justify-end gap-4">
-
-            <a
-                href="{{ route('assets.index') }}"
-                class="rounded-xl border border-slate-300 px-6 py-3">
-                Cancel
-            </a>
-
-            <button
-                class="rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700">
-
-                Save Asset
-
-            </button>
-
-        </div>
-
-    </form>
-
-</div>
+    </div>
 
 </x-app-layout>

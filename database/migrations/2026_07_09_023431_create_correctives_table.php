@@ -15,25 +15,89 @@ return new class extends Migration
 
             $table->id();
 
-            $table->foreignId('ticket_id')
-
-                ->constrained()
-
-                ->onDelete('cascade');
-
-            $table->string('technician');
+            /*
+            |--------------------------------------------------------------------------
+            | Report Information
+            |--------------------------------------------------------------------------
+            */
 
             $table->date('repair_date');
 
-            $table->enum('status', [
+            $table->string('response_time')->nullable();
 
-                'Pending',
+            $table->string('room')->nullable();
 
-                'In Progress',
+            /*
+            |--------------------------------------------------------------------------
+            | Asset Information
+            |--------------------------------------------------------------------------
+            */
 
-                'Completed'
+            $table->string('asset_code')->nullable();
 
-            ])->default('Pending');
+            $table->string('asset_name')->nullable();
+
+            $table->string('brand')->nullable();
+
+            $table->string('type')->nullable();
+
+            $table->string('serial_number')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Service Report
+            |--------------------------------------------------------------------------
+            */
+
+            $table->json('service_type')->nullable();
+
+            $table->json('inspection')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Repair Information
+            |--------------------------------------------------------------------------
+            */
+
+            $table->text('problem')->nullable();
+
+            $table->text('solution')->nullable();
+
+            $table->string('sparepart')->nullable();
+
+            $table->integer('quantity')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Inspection Result
+            |--------------------------------------------------------------------------
+            */
+
+            $table->string('inspection_result')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Technician
+            |--------------------------------------------------------------------------
+            */
+
+            $table->json('technician')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | User Confirmation
+            |--------------------------------------------------------------------------
+            */
+
+            $table->string('user_name')->nullable();
+
+            $table->string('position')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Notes
+            |--------------------------------------------------------------------------
+            */
 
             $table->text('notes')->nullable();
 

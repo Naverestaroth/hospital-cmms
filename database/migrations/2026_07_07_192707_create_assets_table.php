@@ -19,27 +19,21 @@ return new class extends Migration
 
             $table->string('asset_name');
 
-            $table->enum('category', [
-                'Medical',
-                'Non Medical'
-            ]);
-
             $table->string('brand')->nullable();
 
-            $table->string('model')->nullable();
+            $table->string('type')->nullable();
 
             $table->string('serial_number')->nullable();
 
             $table->string('room');
 
-            $table->date('purchase_date')->nullable();
+            $table->date('procurement_year')->nullable();
 
             $table->enum('status', [
-                'Active',
-                'Maintenance',
-                'Broken',
-                'Retired'
-            ])->default('Active');
+                'berfungsi',
+                'rusak',
+                'proses penghapusan',
+            ])->default('berfungsi');
 
             $table->text('description')->nullable();
 

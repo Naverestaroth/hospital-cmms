@@ -1,120 +1,78 @@
 <x-app-layout>
 
-    <div class="max-w-4xl">
+    <div class="max-w-4xl space-y-6">
 
-        <h1 class="mb-6 text-3xl font-bold">
-
-            Create Maintenance Ticket
-
-        </h1>
-
-        @if ($errors->any())
-
-        <div class="mb-6 rounded-xl bg-red-100 p-4 text-red-700">
-
-            <ul>
-
-                @foreach ($errors->all() as $error)
-
-                <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900">
+                Create Maintenance Ticket
+            </h1>
+            <p class="mt-2 text-slate-500">
+                Submit a new service ticket. Newly created tickets will enter "Waiting Approval" status for Coordinator approval.
+            </p>
         </div>
 
+        @if ($errors->any())
+        <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+            <div class="font-semibold mb-1">Please correct the following errors:</div>
+            <ul class="list-disc list-inside text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
         @endif
 
-        <form action="{{ route('tickets.store') }}" method="POST">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <form action="{{ route('tickets.store') }}" method="POST" class="space-y-6">
+                @csrf
 
-            @csrf
+                <!-- Shared Form Fields Partial -->
+                @include('tickets._form')
 
+                <!-- Form Action Buttons -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <a href="{{ route('tickets.index') }}" class="rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100">
+                        Cancel
+                    </a>
 
+                    <button type="submit" class="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 shadow-md">
+                        Submit Ticket
+                    </button>
+                </div>
 
-
-    </div>
-
-    <div class="mb-5">
-
-        <label class="mb-2 block font-medium">
-            Asset
-        </label>
-
-        <select
-            name="asset_id"
-            class="w-full rounded-xl border border-slate-300 p-3">
-
-            @foreach ($assets as $asset)
-
-            <option value="{{ $asset->id }}">
-                {{ $asset->asset_code }} - {{ $asset->asset_name }}
-            </option>
-
-            @endforeach
-
-        </select>
+            </form>
+        </div>
 
     </div>
 
-    <div class="mb-5">
+    <!-- Client-side Room -> Asset dynamic filtering script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roomSelect = document.getElementById('room_select');
+            const assetSelect = document.getElementById('asset_select');
+            if (!roomSelect || !assetSelect) return;
 
-        <label class="mb-2 block font-medium">
-            Reported By
-        </label>
+            const assetOptions = Array.from(assetSelect.options);
 
-        <input
-            type="text"
-            name="reported_by"
-            value="{{ old('reported_by') }}"
-            class="w-full rounded-xl border border-slate-300 p-3"
-            placeholder="Example : Nurse A">
+            roomSelect.addEventListener('change', function () {
+                const selectedRoom = this.value;
+                assetSelect.innerHTML = '';
 
-    </div>
+                // Default empty option
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = '-- Select Asset --';
+                assetSelect.appendChild(defaultOpt);
 
-    <div class="mb-5">
-
-        <label class="mb-2 block font-medium">
-            Issue
-        </label>
-
-        <textarea
-            name="issue"
-            rows="4"
-            class="w-full rounded-xl border border-slate-300 p-3"
-            placeholder="Describe the issue...">{{ old('issue') }}
-        </textarea>
-
-    </div>
-
-    <div class="mb-5">
-
-        <label class="mb-2 block font-medium">
-            Priority
-        </label>
-
-        <select
-            name="priority"
-            class="w-full rounded-xl border border-slate-300 p-3">
-
-            <option value="Low" {{ old('priority')=='Low' ? 'selected' : '' }}>Low</option>
-            <option value="Medium" {{ old('priority')=='Medium' ? 'selected' : '' }}>Medium</option>
-            <option value="High" {{ old('priority')=='High' ? 'selected' : '' }}>High</option>
-
-        </select>
-
-    </div>
-
-    <div class="mt-8">
-
-        <button
-            class="rounded-2xl bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700">
-
-            Create Ticket
-
-        </button>
-
-    </div>
-    </form>
+                assetOptions.forEach(opt => {
+                    if (!opt.value) return;
+                    const optRoom = opt.getAttribute('data-room');
+                    if (!selectedRoom || optRoom === selectedRoom) {
+                        assetSelect.appendChild(opt.cloneNode(true));
+                    }
+                });
+            });
+        });
+    </script>
 
 </x-app-layout>

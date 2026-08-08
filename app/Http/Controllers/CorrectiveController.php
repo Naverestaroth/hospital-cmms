@@ -3,120 +3,190 @@
 namespace App\Http\Controllers;
 
 use App\Models\Corrective;
+use App\Models\Asset;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 
 class CorrectiveController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $correctives = Corrective::with('ticket.asset')->get();
-        return view('correctives.index', compact('correctives'));
+        $sortableColumns = ['repair_date', 'response_time', 'room', 'asset_name', 'brand', 'type', 'serial_number'];
+        $sortField = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'desc');
+
+        if (!in_array($sortField, $sortableColumns) && $sortField !== 'created_at') {
+            $sortField = 'created_at';
+        }
+
+        $correctives = Corrective::query()
+            ->when($request->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('asset_name', 'like', "%{$search}%")
+                        ->orWhere('room', 'like', "%{$search}%")
+                        ->orWhere('brand', 'like', "%{$search}%")
+                        ->orWhere('technician', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy($sortField, $sortDirection)
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('correctives.index', compact('correctives', 'sortField', 'sortDirection'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(Request $request)
     {
-        $tickets = Ticket::all();
-        return view('correctives.create', compact('tickets'));
+        $ticket = null;
+        if ($request->filled('ticket_id')) {
+            $ticket = Ticket::with(['asset', 'technicians', 'corrective'])->find($request->ticket_id);
+            if ($ticket && $ticket->corrective) {
+                return redirect()
+                    ->route('correctives.show', $ticket->corrective)
+                    ->with('info', "A Corrective Report already exists for Ticket {$ticket->ticket_code}.");
+            }
+        }
+
+        return view('correctives.create', compact('ticket'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-
-            'ticket_id' => 'required',
-
-            'technician' => 'required',
-
-            'repair_date' => 'required',
-
-            'status' => 'required',
-
-            'notes' => 'nullable'
-
+        $validated = $request->validate([
+            'ticket_id'         => 'nullable|exists:tickets,id',
+            'repair_date'       => 'required|date',
+            'jam_laporan'       => 'nullable',
+            'jam_visit'         => 'nullable',
+            'response_time'     => 'nullable|string|max:100',
+            'room'              => 'nullable|string|max:255',
+            'asset_code'        => 'nullable|string|max:255',
+            'asset_name'        => 'nullable|string|max:255',
+            'brand'             => 'nullable|string|max:255',
+            'type'              => 'nullable|string|max:255',
+            'serial_number'     => 'nullable|string|max:255',
+            'tanggal_instal'    => 'nullable',
+            'distributor'       => 'nullable',
+            'service_type'      => 'nullable|array',
+            'inspection'        => 'nullable|array',
+            'problem'           => 'nullable|string',
+            'solution'          => 'nullable|string',
+            'sparepart'         => 'nullable|string|max:255',
+            'quantity'          => 'nullable|integer',
+            'inspection_result' => 'nullable|string|max:255',
+            'technician'        => 'nullable|array',
+            'user_name'         => 'nullable|string|max:255',
+            'position'          => 'nullable|string|max:255',
+            'notes'             => 'nullable|string',
         ]);
 
-        Corrective::create($request->all());
+        if (!empty($validated['ticket_id'])) {
+            $existing = Corrective::where('ticket_id', $validated['ticket_id'])->first();
+            if ($existing) {
+                return redirect()
+                    ->route('correctives.show', $existing)
+                    ->with('info', 'A Corrective Report already exists for this ticket.');
+            }
+        }
+
+        $payload = $validated;
+        unset($payload['jam_laporan']);
+        unset($payload['jam_visit']);
+        unset($payload['distributor']);
+
+        if (!empty($payload['tanggal_instal'])) {
+            $val = trim((string) $payload['tanggal_instal']);
+            if (preg_match('/^\d{4}$/', $val)) {
+                $payload['tanggal_instal'] = $val . '-01-01';
+            }
+        }
+
+        $corrective = Corrective::create($payload);
+
+        // If created from a ticket, update ticket status to Closed & log timeline entry
+        if (!empty($corrective->ticket_id) && ($ticket = Ticket::find($corrective->ticket_id))) {
+            $ticket->update(['status' => 'Closed']);
+            
+            $performer = is_array($corrective->technician) ? implode(', ', $corrective->technician) : ($corrective->technician ?: 'IPSRS Technician');
+            $ticket->logActivity('Corrective Report Completed', $performer, 'Corrective maintenance report submitted & ticket closed.');
+        }
 
         return redirect()
-
-            ->route('correctives.index')
-
-            ->with('success', 'Corrective maintenance added successfully.');
+            ->route('correctives.show', $corrective)
+            ->with('success', 'Corrective maintenance report created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Corrective $corrective)
     {
-        //
+        $corrective->load('ticket');
+        return view('correctives.show', compact('corrective'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Corrective $corrective)
     {
-        $tickets = Ticket::all();
+        $rooms = Asset::query()
+            ->whereNotNull('room')
+            ->where('room', '!=', '')
+            ->distinct()
+            ->orderBy('room')
+            ->pluck('room');
 
-        return view(
+        if ($corrective->room && !$rooms->contains($corrective->room)) {
+            $rooms->push($corrective->room);
+        }
 
-            'correctives.edit',
-
-            compact('corrective', 'tickets')
-
-        );
+        return view('correctives.edit', compact('corrective', 'rooms'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Corrective $corrective)
     {
-        $request->validate([
-
-            'ticket_id' => 'required',
-
-            'technician' => 'required',
-
-            'repair_date' => 'required',
-
-            'status' => 'required',
-
-            'notes' => 'nullable'
-
+        $validated = $request->validate([
+            'ticket_id'         => 'nullable|exists:tickets,id',
+            'repair_date'       => 'required|date',
+            'jam_laporan'       => 'nullable',
+            'jam_visit'         => 'nullable',
+            'response_time'     => 'nullable|string|max:100',
+            'room'              => 'nullable|string|max:255',
+            'asset_code'        => 'nullable|string|max:255',
+            'asset_name'        => 'nullable|string|max:255',
+            'brand'             => 'nullable|string|max:255',
+            'type'              => 'nullable|string|max:255',
+            'serial_number'     => 'nullable|string|max:255',
+            'tanggal_instal'    => 'nullable',
+            'distributor'       => 'nullable',
+            'service_type'      => 'nullable|array',
+            'inspection'        => 'nullable|array',
+            'problem'           => 'nullable|string',
+            'solution'          => 'nullable|string',
+            'sparepart'         => 'nullable|string|max:255',
+            'quantity'          => 'nullable|integer',
+            'inspection_result' => 'nullable|string|max:255',
+            'technician'        => 'nullable|array',
+            'user_name'         => 'nullable|string|max:255',
+            'position'          => 'nullable|string|max:255',
+            'notes'             => 'nullable|string',
         ]);
 
-        $corrective->update($request->all());
+        $payload = $validated;
+        if (!empty($payload['tanggal_instal'])) {
+            $val = trim((string) $payload['tanggal_instal']);
+            if (preg_match('/^\d{4}$/', $val)) {
+                $payload['tanggal_instal'] = $val . '-01-01';
+            }
+        }
+
+        $corrective->update($payload);
 
         return redirect()
-
-            ->route('correctives.index')
-
-            ->with('success', 'Corrective updated.');
+            ->route('correctives.show', $corrective)
+            ->with('success', 'Corrective maintenance report updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Corrective $corrective)
     {
         $corrective->delete();
 
         return redirect()
-
             ->route('correctives.index')
-
-            ->with('success', 'Corrective deleted.');
+            ->with('success', 'Corrective maintenance report deleted successfully.');
     }
 }

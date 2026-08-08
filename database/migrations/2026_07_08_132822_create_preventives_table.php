@@ -15,11 +15,53 @@ return new class extends Migration
 
             $table->id();
 
-            $table->foreignId('asset_id')->constrained()->cascadeOnDelete();
+            /*
+            |--------------------------------------------------------------------------
+            | Report Information
+            |--------------------------------------------------------------------------
+            */
+
+            $table->string('room');
 
             $table->date('schedule_date');
 
-            $table->string('technician');
+            /*
+            |--------------------------------------------------------------------------
+            | Asset Information
+            |--------------------------------------------------------------------------
+            */
+
+            $table->string('asset_code')->nullable();
+
+            $table->string('asset_name')->nullable();
+
+            $table->string('brand')->nullable();
+
+            $table->string('type')->nullable();
+
+            $table->string('serial_number')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Asset Procurement Year
+            |--------------------------------------------------------------------------
+            */
+
+            $table->date('procurement_year')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Technician
+            |--------------------------------------------------------------------------
+            */
+
+            $table->string('technician')->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Status
+            |--------------------------------------------------------------------------
+            */
 
             $table->enum('status', [
 
@@ -27,9 +69,15 @@ return new class extends Migration
 
                 'Completed',
 
-                'Missed'
+                'Missed',
 
             ])->default('Scheduled');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Notes
+            |--------------------------------------------------------------------------
+            */
 
             $table->text('notes')->nullable();
 

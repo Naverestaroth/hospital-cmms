@@ -1,138 +1,78 @@
 <x-app-layout>
 
-    <div class="max-w-4xl">
+    <div class="max-w-4xl space-y-6">
 
-        <h1 class="mb-8 text-3xl font-bold">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900">
+                Edit Ticket: {{ $ticket->ticket_code }}
+            </h1>
+            <p class="mt-2 text-slate-500">
+                Update ticket details, equipment completeness, movement details, or assigned technicians.
+            </p>
+        </div>
 
-            Edit Ticket
+        @if ($errors->any())
+        <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+            <div class="font-semibold mb-1">Please correct the following errors:</div>
+            <ul class="list-disc list-inside text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
 
-        </h1>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <form action="{{ route('tickets.update', $ticket) }}" method="POST" class="space-y-6">
+                @csrf
+                @method('PUT')
 
-        <form action="{{ route('tickets.update',$ticket) }}" method="POST">
+                <!-- Shared Form Fields Partial -->
+                @include('tickets._form')
 
-            @csrf
-            @method('PUT')
+                <!-- Form Action Buttons -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <a href="{{ route('tickets.show', $ticket) }}" class="rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100">
+                        Cancel
+                    </a>
 
-            <div class="mb-5">
+                    <button type="submit" class="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 shadow-md">
+                        Update Ticket
+                    </button>
+                </div>
 
-                <label class="mb-2 block font-medium">
-
-                    Asset
-
-                </label>
-
-                <select
-                    name="asset_id"
-                    class="w-full rounded-xl border p-3">
-
-                    @foreach($assets as $asset)
-
-                    <option
-                        value="{{ $asset->id }}"
-                        {{ $ticket->asset_id==$asset->id?'selected':'' }}>
-
-                        {{ $asset->asset_code }}
-                        -
-                        {{ $asset->asset_name }}
-
-                    </option>
-
-                    @endforeach
-
-                </select>
-
-            </div>
-
-            <div class="mb-5">
-
-                <label class="mb-2 block font-medium">
-
-                    Reported By
-
-                </label>
-
-                <input
-                    type="text"
-                    name="reported_by"
-                    value="{{ $ticket->reported_by }}"
-                    class="w-full rounded-xl border p-3">
-
-            </div>
-
-            <div class="mb-5">
-
-                <label class="mb-2 block font-medium">
-
-                    Issue
-
-                </label>
-
-                <textarea
-                    name="issue"
-                    rows="4"
-                    class="w-full rounded-xl border p-3">{{ $ticket->issue }}</textarea>
-
-            </div>
-
-            <div class="mb-5">
-
-                <label class="mb-2 block font-medium">
-
-                    Priority
-
-                </label>
-
-                <select
-                    name="priority"
-                    class="w-full rounded-xl border p-3">
-
-                    <option {{ $ticket->priority=='Low'?'selected':'' }}>Low</option>
-
-                    <option {{ $ticket->priority=='Medium'?'selected':'' }}>Medium</option>
-
-                    <option {{ $ticket->priority=='High'?'selected':'' }}>High</option>
-
-                </select>
-
-            </div>
-
-            <div class="mb-5">
-
-                <label class="mb-2 block font-medium">
-
-                    Status
-
-                </label>
-
-                <select
-                    name="status"
-                    class="w-full rounded-xl border p-3">
-
-                    <option {{ $ticket->status=='Open'?'selected':'' }}>
-                        Open
-                    </option>
-
-                    <option {{ $ticket->status=='In Progress'?'selected':'' }}>
-                        In Progress
-                    </option>
-
-                    <option {{ $ticket->status=='Completed'?'selected':'' }}>
-                        Completed
-                    </option>
-
-                </select>
-
-            </div>
-
-            <button
-                class="rounded-2xl bg-emerald-600 px-6 py-3 text-white">
-
-                Update Ticket
-
-            </button>
-
-        </form>
+            </form>
+        </div>
 
     </div>
+
+    <!-- Client-side Room -> Asset dynamic filtering script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roomSelect = document.getElementById('room_select');
+            const assetSelect = document.getElementById('asset_select');
+            if (!roomSelect || !assetSelect) return;
+
+            const assetOptions = Array.from(assetSelect.options);
+
+            roomSelect.addEventListener('change', function () {
+                const selectedRoom = this.value;
+                assetSelect.innerHTML = '';
+
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = '-- Select Asset --';
+                assetSelect.appendChild(defaultOpt);
+
+                assetOptions.forEach(opt => {
+                    if (!opt.value) return;
+                    const optRoom = opt.getAttribute('data-room');
+                    if (!selectedRoom || optRoom === selectedRoom) {
+                        assetSelect.appendChild(opt.cloneNode(true));
+                    }
+                });
+            });
+        });
+    </script>
 
 </x-app-layout>

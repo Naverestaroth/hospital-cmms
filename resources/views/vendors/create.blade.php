@@ -119,16 +119,26 @@
 
                     class="w-full rounded-xl border border-slate-300 p-3">
 
-            <div class="mt-8">
+                <div class="create-button">
 
-                <button
+                    <a
 
-                    class="rounded-2xl bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700">
-                    Save Vendor
+                        href="{{ route('vendors.index') }}"
 
-                </button>
+                        class="rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100">
 
-            </div>
+                        Cancel
+
+                    </a>
+
+                    <button
+
+                        class="rounded-2xl bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700">
+                        Save Vendor
+
+                    </button>
+
+                </div>
         </form>
     </div>
 

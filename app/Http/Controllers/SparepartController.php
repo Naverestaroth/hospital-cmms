@@ -10,10 +10,29 @@ class SparepartController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $spareparts = Sparepart::all();
-        return view('spareparts.index', compact('spareparts'));
+        $sortableColumns = ['part_code', 'part_name', 'stock', 'unit', 'location'];
+        $sortField = $request->input('sort', 'created_at');
+        $sortDirection = $request->input('direction', 'desc');
+
+        if (!in_array($sortField, $sortableColumns) && $sortField !== 'created_at') {
+            $sortField = 'created_at';
+        }
+
+        $spareparts = Sparepart::query()
+            ->when($request->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('part_code', 'like', "%{$search}%")
+                        ->orWhere('part_name', 'like', "%{$search}%")
+                        ->orWhere('location', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy($sortField, $sortDirection)
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('spareparts.index', compact('spareparts', 'sortField', 'sortDirection'));
     }
 
     /**
@@ -57,7 +76,7 @@ class SparepartController extends Controller
      */
     public function show(Sparepart $sparepart)
     {
-        //
+        return view('spareparts.show', compact('sparepart'));
     }
 
     /**
@@ -65,7 +84,7 @@ class SparepartController extends Controller
      */
     public function edit(Sparepart $sparepart)
     {
-        //
+        return view('spareparts.edit', compact('sparepart'));
     }
 
     /**
@@ -73,7 +92,19 @@ class SparepartController extends Controller
      */
     public function update(Request $request, Sparepart $sparepart)
     {
-        //
+        $validated = $request->validate([
+            'part_code' => 'required|unique:spareparts,part_code,' . $sparepart->id,
+            'part_name' => 'required',
+            'stock' => 'required|integer',
+            'unit' => 'required',
+            'location' => 'nullable',
+        ]);
+
+        $sparepart->update($validated);
+
+        return redirect()
+            ->route('spareparts.index')
+            ->with('success', 'Sparepart updated successfully.');
     }
 
     /**
@@ -81,6 +112,10 @@ class SparepartController extends Controller
      */
     public function destroy(Sparepart $sparepart)
     {
-        //
+        $sparepart->delete();
+
+        return redirect()
+            ->route('spareparts.index')
+            ->with('success', 'Sparepart deleted successfully.');
     }
 }
