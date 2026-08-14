@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AssetController extends Controller
 {
@@ -76,7 +77,7 @@ class AssetController extends Controller
     public function store(Request $request)
     {
         if ($request->input('status_select') === 'Other') {
-            $request->merge(['status' => $request->input('status_custom')]);
+            $request->merge(['status' => $request->input('status_custom') ?: 'Other']);
         } elseif ($request->has('status_select') && !empty($request->input('status_select'))) {
             $request->merge(['status' => $request->input('status_select')]);
         }
@@ -201,7 +202,7 @@ class AssetController extends Controller
     public function update(Request $request, Asset $asset)
     {
         if ($request->input('status_select') === 'Other') {
-            $request->merge(['status' => $request->input('status_custom')]);
+            $request->merge(['status' => $request->input('status_custom') ?: 'Other']);
         } elseif ($request->has('status_select') && !empty($request->input('status_select'))) {
             $request->merge(['status' => $request->input('status_select')]);
         }
@@ -237,5 +238,34 @@ class AssetController extends Controller
         return redirect()
             ->route('assets.index')
             ->with('success', 'Asset deleted successfully.');
+    }
+
+    public function downloadQr(Asset $asset)
+    {
+        $targetUrl = route('assets.show', $asset);
+        $filename = ($asset->asset_code ?: ('AST-' . $asset->id)) . '-QR.png';
+
+        try {
+            $qrContent = QrCode::format('png')->size(300)->margin(1)->generate($targetUrl);
+            return response($qrContent, 200, [
+                'Content-Type' => 'image/png',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
+        } catch (\Throwable $e) {
+            $svgFilename = ($asset->asset_code ?: ('AST-' . $asset->id)) . '-QR.svg';
+            $qrContent = QrCode::format('svg')->size(300)->margin(1)->generate($targetUrl);
+            return response($qrContent, 200, [
+                'Content-Type' => 'image/svg+xml',
+                'Content-Disposition' => 'attachment; filename="' . $svgFilename . '"',
+            ]);
+        }
+    }
+
+    public function printQr(Asset $asset)
+    {
+        $targetUrl = route('assets.show', $asset);
+        $qrSvg = QrCode::size(200)->margin(1)->generate($targetUrl);
+
+        return view('assets.qr-print', compact('asset', 'qrSvg'));
     }
 }

@@ -207,10 +207,10 @@
     top: 24px;
     bottom: 24px;
     left: 24px;
-    width: 288px;
     z-index: 30;
     overflow: hidden;
     border-radius: 24px;
+    transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1), padding 300ms ease;
     background: linear-gradient(165deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.24));
     -webkit-backdrop-filter: blur(34px) saturate(200%);
     backdrop-filter: blur(34px) saturate(200%);

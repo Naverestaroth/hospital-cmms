@@ -19,24 +19,49 @@
     ];
 @endphp
 
-<aside class="cmms-sidebar fixed inset-y-6 left-6 z-30 flex w-72 flex-col">
-    <div class="flex items-center gap-3 px-5 pb-6 pt-5">
-        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#4F7CFF] text-sm font-bold tracking-wide text-white shadow-[0_12px_28px_rgba(79,124,255,0.28)]">
-            HC
+<aside class="cmms-sidebar fixed inset-y-6 left-6 z-30 flex flex-col transition-all duration-300 ease-in-out"
+       :class="collapsed ? 'w-20 px-2' : 'w-72 px-0'">
+    
+    <!-- Top Header: Logo + Title + Collapse/Expand Toggle Button -->
+    <div class="flex items-center justify-between px-4 pb-4 pt-5 border-b border-slate-200/50">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-[#4F7CFF] text-sm font-bold tracking-wide text-white shadow-[0_12px_28px_rgba(79,124,255,0.28)]">
+                HC
+            </div>
+            <div x-show="!collapsed" x-transition.opacity class="min-w-0">
+                <h1 class="text-[15px] font-semibold tracking-tight text-slate-900 truncate">Hospital CMMS</h1>
+                <p class="text-[11px] text-slate-500 truncate">Maintenance workspace</p>
+            </div>
         </div>
-        <div>
-            <h1 class="text-[15px] font-semibold tracking-tight text-slate-900">Hospital CMMS</h1>
-            <p class="mt-0.5 text-xs text-slate-500">Maintenance workspace</p>
-        </div>
+
+        <!-- Sidebar Collapse / Expand Toggle Button -->
+        <button type="button"
+                @click="collapsed = !collapsed; localStorage.setItem('cmms_sidebar_collapsed', collapsed)"
+                class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/80 text-slate-600 hover:bg-white hover:text-slate-900 shadow-sm border border-slate-200/70 transition flex-shrink-0 cursor-pointer"
+                :title="collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 transition-transform duration-300" :class="{ 'rotate-180': collapsed }" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
     </div>
 
-    <nav class="cmms-sidebar__nav" aria-label="Primary navigation">
+    <!-- Scrollable Navigation Container -->
+    <nav class="cmms-sidebar__nav flex-1 overflow-y-auto py-3 space-y-1.5 custom-scrollbar" aria-label="Primary navigation">
         @foreach ($navigation as $item)
             @if (isset($item['section']))
-                <p class="sidebar-label">{{ $item['section'] }}</p>
+                <!-- Section Label Header (Expanded view) -->
+                <p x-show="!collapsed" x-transition.opacity class="sidebar-label px-3 mt-4 mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    {{ $item['section'] }}
+                </p>
+                <!-- Subtle divider line (Collapsed view) -->
+                <div x-show="collapsed" class="my-2 border-t border-slate-200/60 mx-2"></div>
             @else
-                <a href="{{ route($item['route']) }}" class="sidebar-link {{ request()->routeIs($item['active']) ? 'sidebar-link--active' : '' }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <!-- Navigation Link Item -->
+                <a href="{{ route($item['route']) }}"
+                   class="sidebar-link flex items-center gap-3 rounded-2xl transition-all text-slate-600 hover:bg-white/80 hover:text-slate-900 {{ request()->routeIs($item['active']) ? 'sidebar-link--active font-semibold text-[#4F7CFF]' : '' }}"
+                   :class="collapsed ? 'justify-center px-0 py-3 mx-auto w-11 h-11' : 'px-3.5 py-2.5 mx-3'"
+                   :title="collapsed ? '{{ $item['label'] }}' : ''">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5 flex-shrink-0" aria-hidden="true">
                         @if ($item['icon'] === 'dashboard')
                             <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
                         @elseif ($item['icon'] === 'asset')
@@ -62,22 +87,23 @@
                             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l2.7-2.7a6 6 0 0 1-7.9 7.9l-6.8 6.8a2.1 2.1 0 0 1-3-3l6.8-6.8a6 6 0 0 1 7.9-7.9l-2.7 2.7Z"/>
                         @endif
                     </svg>
-                    <span>{{ $item['label'] }}</span>
+                    <span x-show="!collapsed" x-transition.opacity class="truncate text-sm font-medium">{{ $item['label'] }}</span>
                 </a>
             @endif
         @endforeach
     </nav>
 
-    <div class="mx-3 mb-3 mt-4 rounded-2xl border border-white/70 bg-white/60 p-3 backdrop-blur-xl">
-        <div class="sidebar-user-card flex items-center gap-3">
-            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-sm font-semibold text-white">
+    <!-- User Profile Footer Card -->
+    <div class="mx-2 mb-3 mt-2 rounded-2xl border border-white/70 bg-white/60 p-2.5 backdrop-blur-xl transition-all">
+        <div class="sidebar-user-card flex items-center gap-3" :class="collapsed ? 'justify-center' : ''">
+            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-slate-900 text-sm font-semibold text-white">
                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
             </div>
-            <div class="min-w-0">
+            <div x-show="!collapsed" x-transition.opacity class="min-w-0">
                 <p class="truncate text-sm font-semibold text-slate-800">{{ Auth::user()->name }}</p>
                 <p class="truncate text-xs text-slate-500">Hospital team</p>
             </div>
         </div>
-        <p class="mt-3 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400">CMMS · {{ date('Y') }}</p>
+        <p x-show="!collapsed" x-transition.opacity class="mt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-400 text-center">CMMS · {{ date('Y') }}</p>
     </div>
 </aside>

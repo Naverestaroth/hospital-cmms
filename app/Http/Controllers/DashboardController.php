@@ -162,6 +162,13 @@ class DashboardController extends Controller
 
         $maxActiveTickets = max(1, $techniciansWorkload->max('tickets_count') ?? 1);
 
+        $totalTechs = Technician::count();
+        $busyTechsCount = Technician::whereHas('tickets', function ($q) {
+            $q->whereNotIn('status', ['Closed', 'Rejected', 'Cancelled']);
+        })->count();
+        $availableTechsCount = max(0, $totalTechs - $busyTechsCount);
+        $technicianAvailabilityPct = $totalTechs > 0 ? round(($availableTechsCount / $totalTechs) * 100) : 100;
+
         // 6. Recent Ticket Activities
         $recentActivities = TicketActivity::with('ticket')->latest()->take(10)->get();
 
@@ -265,7 +272,9 @@ class DashboardController extends Controller
             'countBerfungsi' => $countBerfungsi,
             'countDalamPerbaikan' => $countDalamPerbaikan,
             'countTidakBerfungsi' => $countTidakBerfungsi,
+            'countProsesPenghapusan' => $countProsesPenghapusan,
             'countDisposal' => $countDisposal,
+            'countOther' => $countOther,
             'assetStatusData' => $assetStatusData,
             'rawAssetStatusData' => $rawAssetStatusData,
             'uniqueStatusCount' => $uniqueStatusCount,
@@ -286,6 +295,9 @@ class DashboardController extends Controller
             'workflowBreakdown' => $workflowBreakdown,
             'techniciansWorkload' => $techniciansWorkload,
             'maxActiveTickets' => $maxActiveTickets,
+            'totalTechs' => $totalTechs,
+            'availableTechsCount' => $availableTechsCount,
+            'technicianAvailabilityPct' => $technicianAvailabilityPct,
             'recentActivities' => $recentActivities,
             'upcomingPreventives' => $upcomingPreventives,
             'availableMonths' => $availableMonths,

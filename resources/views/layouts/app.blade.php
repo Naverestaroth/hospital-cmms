@@ -11,7 +11,7 @@
 
 </head>
 
-<body class="bg-[#F3F7F9] font-sans antialiased relative min-h-screen overflow-x-hidden">
+<body class="bg-[#F3F7F9] font-sans antialiased relative min-h-screen overflow-x-hidden" x-data="{ collapsed: localStorage.getItem('cmms_sidebar_collapsed') === 'true' }">
 
     <!-- Dedicated Fixed Viewport Background Layer (Apple VisionOS / macOS Tahoe Ambient Mesh) -->
     <div class="ambient-mesh-background" aria-hidden="true">

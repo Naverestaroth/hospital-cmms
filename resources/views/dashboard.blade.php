@@ -275,39 +275,65 @@
             {{-- COLUMN 3 (4.0 Cols) --}}
             <div class="lg:col-span-4 bento-col flex flex-col gap-5">
 
-                {{-- CARD 5: Stat Pills + Concentric Cross Core Component --}}
+                {{-- CARD 5: Fleet Vitality Component (Dynamic Metrics & Health Score Ring) --}}
                 <div class="feature-card glass rounded-[24px] p-5 flex flex-col items-center text-center gap-4">
                     <div class="stat-pill-row flex gap-2 w-full">
-                        <div class="stat-pill flex-1 inset-box p-2.5 rounded-2xl text-center">
+                        {{-- 1. Total Assets --}}
+                        <div class="stat-pill flex-1 inset-box p-2.5 rounded-2xl text-center" title="Total Hospital Assets">
                             <div class="stat-pill-icon w-6 h-6 rounded-full bg-white/80 flex items-center justify-center mx-auto mb-1.5 text-[#0A4A57] shadow-sm">
-                                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg>
+                                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </div>
-                            <div class="stat-pill-val mono font-bold text-sm text-[#0B1E26]">{{ $assetStatusData[0]['percentage'] ?? 100 }}%</div>
-                            <div class="stat-pill-lab text-[10px] text-[#5B7480]">Uptime</div>
+                            <div class="stat-pill-val mono font-bold text-sm text-[#0B1E26]">{{ number_format($totalAssetCount) }}</div>
+                            <div class="stat-pill-lab text-[10px] text-[#5B7480]">Total Assets</div>
                         </div>
-                        <div class="stat-pill flex-1 inset-box p-2.5 rounded-2xl text-center">
+
+                        {{-- 2. Total Maintenance --}}
+                        <div class="stat-pill flex-1 inset-box p-2.5 rounded-2xl text-center" title="Total Maintenance Records">
                             <div class="stat-pill-icon w-6 h-6 rounded-full bg-white/80 flex items-center justify-center mx-auto mb-1.5 text-[#0A4A57] shadow-sm">
-                                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+                                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 1 1-5.4 5.4L3 18v3h3l6.3-6.3"/></svg>
                             </div>
-                            <div class="stat-pill-val mono font-bold text-sm text-[#0B1E26]">{{ $activeOpenTicketsCount }}</div>
-                            <div class="stat-pill-lab text-[10px] text-[#5B7480]">Active Tickets</div>
+                            <div class="stat-pill-val mono font-bold text-sm text-[#0B1E26]">{{ number_format($maintenanceCount) }}</div>
+                            <div class="stat-pill-lab text-[10px] text-[#5B7480]">Total Maintenance</div>
                         </div>
-                        <div class="stat-pill flex-1 inset-box p-2.5 rounded-2xl text-center">
+
+                        {{-- 3. Total Technicians (Count) --}}
+                        <div class="stat-pill flex-1 inset-box p-2.5 rounded-2xl text-center" title="Total Registered Technicians">
                             <div class="stat-pill-icon w-6 h-6 rounded-full bg-white/80 flex items-center justify-center mx-auto mb-1.5 text-[#0A4A57] shadow-sm">
                                 <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
                             </div>
-                            <div class="stat-pill-val mono font-bold text-sm text-[#0B1E26]">{{ $techniciansWorkload->count() }}</div>
-                            <div class="stat-pill-lab text-[10px] text-[#5B7480]">Technicians</div>
+                            <div class="stat-pill-val mono font-bold text-sm text-[#0B1E26]">{{ number_format($totalTechs) }}</div>
+                            <div class="stat-pill-lab text-[10px] text-[#5B7480]">Total Technicians</div>
                         </div>
                     </div>
 
-                    {{-- Concentric Rings --}}
-                    <div class="cross-rings relative w-44 h-44 flex items-center justify-center my-1">
-                        <div class="ring r3 absolute rounded-full border border-[#00B8A9]/10 w-44 h-44"></div>
-                        <div class="ring r2 absolute rounded-full border border-[#00B8A9]/15 w-34 h-34"></div>
-                        <div class="ring r1 absolute rounded-full border border-[#00B8A9]/25 w-24 h-24"></div>
-                        <div class="cross-core relative w-16 h-16 rounded-full bg-white/80 backdrop-blur flex items-center justify-center shadow-lg border border-white">
-                            <svg class="w-8 h-8 text-[#0A4A57]" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2h4v6h6v4h-6v10h-4V12H4V8h6z"/></svg>
+                    {{-- Concentric Rings with Dynamic Overall Health Score SVG Progress Ring --}}
+                    <div class="cross-rings relative w-44 h-44 flex flex-col items-center justify-center my-1">
+                        <!-- Outer static background rings -->
+                        <div class="ring r3 absolute rounded-full border border-[#00B8A9]/10 w-44 h-44 pointer-events-none"></div>
+                        <div class="ring r2 absolute rounded-full border border-[#00B8A9]/15 w-36 h-36 pointer-events-none"></div>
+                        
+                        <!-- Dynamic SVG Progress Circle Ring -->
+                        <svg class="w-40 h-40 transform -rotate-90 pointer-events-none absolute" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" stroke="#E2EBEE" stroke-width="5.5" fill="transparent" />
+                            @php
+                                $circumference = 263.89; // 2 * pi * 42
+                                $healthScore = max(0, min(100, $equipmentAvailabilityPct));
+                                $dashOffset = $circumference - ($circumference * $healthScore) / 100;
+                                $ringColor = $healthScore >= 80 ? '#2E9E6D' : ($healthScore >= 50 ? '#DB9A34' : '#E2574C');
+                            @endphp
+                            <circle cx="50" cy="50" r="42" 
+                                    stroke="{{ $ringColor }}" 
+                                    stroke-width="6.5" 
+                                    stroke-linecap="round" 
+                                    fill="transparent" 
+                                    stroke-dasharray="{{ $circumference }}" 
+                                    style="stroke-dashoffset: {{ $dashOffset }}; transition: stroke-dashoffset 1s ease-in-out;" />
+                        </svg>
+
+                        <!-- Center Core showing Overall Health Score Percentage -->
+                        <div class="cross-core relative w-20 h-20 rounded-full bg-white/90 backdrop-blur flex flex-col items-center justify-center shadow-lg border border-white text-center z-10 p-1">
+                            <span class="mono text-lg font-extrabold text-[#0B1E26] tracking-tight leading-none">{{ round($equipmentAvailabilityPct, 1) }}%</span>
+                            <span class="text-[9px] font-bold tracking-wider text-[#5B7480] uppercase mt-1">Health Score</span>
                         </div>
                     </div>
 
@@ -332,34 +358,89 @@
                     </div>
                 </div>
 
-                {{-- CARD 7: Quick Actions Component --}}
-                <div class="feature-card glass rounded-[24px] p-5 flex flex-col items-center text-center gap-4">
-                    <div class="orbit-cluster relative w-full h-44">
-                        <div class="orbit-ring r1 absolute left-1/2 top-1/2 rounded-full border border-dashed border-[#0B1E26]/10 -translate-x-1/2 -translate-y-1/2 w-32 h-32"></div>
-                        <div class="orbit-ring r2 absolute left-1/2 top-1/2 rounded-full border border-dashed border-[#0B1E26]/10 -translate-x-1/2 -translate-y-1/2 w-44 h-44"></div>
+                {{-- CARD 7: Quick Actions Component (Proportional Background & Unclipped Radial Wheel) --}}
+                <div class="feature-card glass rounded-[24px] p-5 flex flex-col items-center text-center gap-3 relative overflow-visible h-full justify-between" x-data="{ isOpen: true }">
+                    
+                    <!-- Header Section -->
+                    <div class="w-full border-b border-[#E2EBEE]/70 pb-2.5 flex items-center justify-between z-10">
+                        <div class="text-left">
+                            <h3 class="disp text-base font-bold text-[#0B1E26]">Quick Actions</h3>
+                            <p class="text-xs text-[#5B7480] mt-0.5">Navigasi cepat hospital CMMS</p>
+                        </div>
+                        <span class="mono text-[10px] font-bold text-[#0E5E6F] bg-[#E9F1F8] px-2.5 py-1 rounded-full border border-[#0E5E6F]/20">
+                            Radial Menu
+                        </span>
+                    </div>
+
+                    <!-- Fixed Size Radial Wheel Cluster Area (Proportional Background) -->
+                    <div class="radial-menu-cluster relative w-full h-44 flex items-center justify-center overflow-visible my-auto">
                         
-                        <a href="{{ route('tickets.index') }}" class="orbit-pill p1 absolute top-1 left-2 flex items-center gap-1.5 bg-white/80 backdrop-blur border border-white rounded-full px-3 py-1.5 text-xs font-semibold text-[#0B1E26] shadow-sm hover:scale-105 transition">
-                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57]" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+                        <!-- Outer Decorative Guide Rings -->
+                        <div class="orbit-ring absolute rounded-full border border-dashed border-[#0B1E26]/20 w-44 h-44 pointer-events-none transition-transform duration-700"
+                             :class="{ 'scale-100 opacity-100 rotate-45': isOpen, 'scale-75 opacity-40': !isOpen }"></div>
+                        <div class="orbit-ring absolute rounded-full border border-dashed border-[#00B8A9]/25 w-32 h-32 pointer-events-none transition-transform duration-700"
+                             :class="{ 'scale-100 opacity-100 -rotate-45': isOpen, 'scale-75 opacity-40': !isOpen }"></div>
+
+                        <!-- 1. Radial Action: Tickets (Top Left) -->
+                        <a href="{{ route('tickets.index') }}"
+                           class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
+                           :style="isOpen ? 'transform: translate(-64px, -46px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           title="Tickets Management">
+                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
                             <span>Tickets</span>
                         </a>
-                        <a href="{{ route('technicians.index') }}" class="orbit-pill p2 absolute top-3 right-1 flex items-center gap-1.5 bg-white/80 backdrop-blur border border-white rounded-full px-3 py-1.5 text-xs font-semibold text-[#0B1E26] shadow-sm hover:scale-105 transition">
-                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57]" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+
+                        <!-- 2. Radial Action: Technicians (Top Right) -->
+                        <a href="{{ route('technicians.index') }}"
+                           class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
+                           :style="isOpen ? 'transform: translate(64px, -46px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           title="Technicians Directory">
+                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
                             <span>Technicians</span>
                         </a>
-                        <a href="{{ route('reports') }}" class="orbit-pill p3 absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-white/80 backdrop-blur border border-white rounded-full px-3 py-1.5 text-xs font-semibold text-[#0B1E26] shadow-sm hover:scale-105 transition">
-                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57]" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+
+                        <!-- 3. Radial Action: Assets (Middle Right) -->
+                        <a href="{{ route('assets.index') }}"
+                           class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
+                           :style="isOpen ? 'transform: translate(78px, 10px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           title="Asset Inventory">
+                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            <span>Assets</span>
+                        </a>
+
+                        <!-- 4. Radial Action: Reports (Bottom Center) -->
+                        <a href="{{ route('reports') }}"
+                           class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3.5 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
+                           :style="isOpen ? 'transform: translate(0, 60px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           title="Reports & Analytics">
+                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
                             <span>Reports</span>
                         </a>
 
-                        <div class="orbit-core absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-[#0E5E6F] to-[#0A4A57] flex items-center justify-center shadow-xl text-white">
-                            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-                        </div>
+                        <!-- 5. Radial Action: Preventive (Middle Left) -->
+                        <a href="{{ route('preventives.index') }}"
+                           class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
+                           :style="isOpen ? 'transform: translate(-78px, 10px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           title="Preventive Schedules">
+                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+                            <span>Preventive</span>
+                        </a>
+
+                        <!-- Center Main Trigger Button (Tombol Utama di Tengah) -->
+                        <button type="button"
+                                @click="isOpen = !isOpen"
+                                class="absolute z-30 w-13 h-13 rounded-full bg-gradient-to-br from-[#0E5E6F] to-[#0A4A57] text-white flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border-2 border-white"
+                                :title="isOpen ? 'Tutup Roda Pilihan' : 'Buka Roda Pilihan'">
+                            <svg viewBox="0 0 24 24"
+                                 class="w-6 h-6 transition-transform duration-300"
+                                 :class="{ 'rotate-45': isOpen }"
+                                 fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                        </button>
+
                     </div>
 
-                    <div>
-                        <div class="feature-heading disp text-lg font-bold text-[#0B1E26]">Quick Actions</div>
-                        <div class="feature-desc text-xs text-[#5B7480] mt-0.5">Jump straight into logging tickets, assigning technicians, or pulling reports.</div>
-                    </div>
                 </div>
 
             </div>
@@ -428,20 +509,100 @@
                 </div>
             </div>
 
-            {{-- Raw Asset Status Audit Panel --}}
+            {{-- Status Overview Panel --}}
+            @php
+                $countDalamPerbaikan = $countDalamPerbaikan ?? 0;
+                $countProsesPenghapusan = $countProsesPenghapusan ?? ($countDisposal ?? 0);
+            @endphp
             <div class="lg:col-span-4 feature-card glass rounded-[24px] p-5 space-y-4">
                 <div class="panel-head flex items-center justify-between border-b border-[#E2EBEE]/70 pb-3">
                     <div>
-                        <h2 class="disp text-base font-bold text-[#0B1E26]">Raw Status Audit</h2>
-                        <p class="text-xs text-[#5B7480]">Database status distribution.</p>
+                        <h2 class="disp text-base font-bold text-[#0B1E26]">Status Overview</h2>
+                        <p class="text-xs text-[#5B7480]">Distribusi status aset dari database.</p>
                     </div>
-                    <span class="mono text-xs font-bold text-[#7C6FE0] bg-[#EFEDFC] px-2.5 py-0.5 rounded-full border border-[#7C6FE0]/30">
-                        {{ number_format($uniqueStatusCount) }} Statuses
+                    <span class="mono text-xs font-bold text-[#0E5E6F] bg-[#E9F1F8] px-2.5 py-0.5 rounded-full border border-[#0E5E6F]/30">
+                        {{ number_format($totalAssetCount) }} Total
                     </span>
                 </div>
 
-                <div class="relative w-full max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                    <div id="raw-asset-status-chart" class="w-full"></div>
+                <div class="space-y-3">
+                    <!-- Status: Berfungsi -->
+                    <a href="{{ route('assets.index', ['status' => 'berfungsi']) }}" class="inset-box p-3.5 rounded-2xl flex items-center justify-between transition-all hover:bg-white/80 block shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+                                <svg viewBox="0 0 24 24" class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="font-bold text-sm text-[#0B1E26] block">Berfungsi</span>
+                                <span class="text-[11px] text-[#5B7480]">Asset operasional normal</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="mono font-bold text-lg text-[#2E9E6D]">{{ number_format($countBerfungsi) }}</span>
+                            <span class="text-[10px] text-[#8CA0A8] block">unit</span>
+                        </div>
+                    </a>
+
+                    <!-- Status: Rusak -->
+                    <a href="{{ route('assets.index', ['status' => 'rusak']) }}" class="inset-box p-3.5 rounded-2xl flex items-center justify-between transition-all hover:bg-white/80 block shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm">
+                                <svg viewBox="0 0 24 24" class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="font-bold text-sm text-[#0B1E26] block">Rusak</span>
+                                <span class="text-[11px] text-[#5B7480]">Tidak berfungsi / rusak</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="mono font-bold text-lg text-[#E2574C]">{{ number_format($countTidakBerfungsi) }}</span>
+                            <span class="text-[10px] text-[#8CA0A8] block">unit</span>
+                        </div>
+                    </a>
+
+                    <!-- Status: Maintenance -->
+                    <a href="{{ route('assets.index', ['status' => 'dalam perbaikan']) }}" class="inset-box p-3.5 rounded-2xl flex items-center justify-between transition-all hover:bg-white/80 block shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
+                                <svg viewBox="0 0 24 24" class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M14.7 6.3a4 4 0 1 1-5.4 5.4L3 18v3h3l6.3-6.3"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="font-bold text-sm text-[#0B1E26] block">Maintenance</span>
+                                <span class="text-[11px] text-[#5B7480]">Dalam proses perbaikan</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="mono font-bold text-lg text-[#DB9A34]">{{ number_format($countDalamPerbaikan) }}</span>
+                            <span class="text-[10px] text-[#8CA0A8] block">unit</span>
+                        </div>
+                    </a>
+
+                    @if($countProsesPenghapusan > 0)
+                        <!-- Status: Proses Penghapusan / Tidak Digunakan -->
+                        <a href="{{ route('assets.index', ['status' => 'proses penghapusan']) }}" class="inset-box p-3.5 rounded-2xl flex items-center justify-between transition-all hover:bg-white/80 block shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-sm">
+                                    <svg viewBox="0 0 24 24" class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-sm text-[#0B1E26] block">Proses Penghapusan</span>
+                                    <span class="text-[11px] text-[#5B7480]">Tidak digunakan / disposal</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="mono font-bold text-lg text-slate-700">{{ number_format($countProsesPenghapusan) }}</span>
+                                <span class="text-[10px] text-[#8CA0A8] block">unit</span>
+                            </div>
+                        </a>
+                    @endif
                 </div>
             </div>
 
@@ -644,6 +805,7 @@
             const rawChart = new ApexCharts(document.querySelector("#raw-asset-status-chart"), options);
             rawChart.render();
         });
+    </script>
     {{-- Floating Liquid Glass Tooltip for Card 4 Histogram Hover --}}
     <div id="card4-tooltip" class="glass fixed z-50 px-3.5 py-2 rounded-xl text-xs shadow-xl pointer-events-none transition-opacity duration-200 opacity-0 border border-white/90" style="display: none;">
         <div class="font-bold text-[#0B1E26] text-[11px]" id="card4-tooltip-title">Week 1</div>

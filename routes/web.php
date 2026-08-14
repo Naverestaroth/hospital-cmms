@@ -36,6 +36,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/assets/import', [\App\Http\Controllers\AssetImportController::class, 'confirmImport'])
         ->name('assets.import.confirm');
 
+    // Asset QR Code Download & Print
+    Route::get('/assets/{asset}/qr/download', [AssetController::class, 'downloadQr'])
+        ->name('assets.qr.download');
+    Route::get('/assets/{asset}/qr/print', [AssetController::class, 'printQr'])
+        ->name('assets.qr.print');
+
     Route::resource('assets', AssetController::class);
 
     Route::resource('documents', DocumentController::class);
@@ -122,6 +128,80 @@ Route::middleware('auth')->group(function () {
         ->name('reports.assets.pdf');
 
     Route::view('/settings', 'settings.index')->name('settings');
+
+    Route::post('/settings/wipe', function (\Illuminate\Http\Request $request) {
+        $targets = $request->input('targets', []);
+
+        if (empty($targets)) {
+            return redirect()->back()->with('error', 'Pilih setidaknya satu kategori data input untuk dibersihkan.');
+        }
+
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+        $cleared = [];
+
+        if (in_array('tickets', $targets)) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('ticket_activities')) \App\Models\TicketActivity::truncate();
+            if (\Illuminate\Support\Facades\Schema::hasTable('ticket_technician')) \Illuminate\Support\Facades\DB::table('ticket_technician')->delete();
+            \App\Models\Ticket::truncate();
+            $cleared[] = 'Tickets';
+        }
+
+        if (in_array('corrective', $targets)) {
+            \App\Models\Corrective::truncate();
+            $cleared[] = 'Corrective';
+        }
+
+        if (in_array('preventive', $targets)) {
+            \App\Models\Preventive::truncate();
+            $cleared[] = 'Preventive';
+        }
+
+        if (in_array('assets', $targets)) {
+            \App\Models\Asset::truncate();
+            $cleared[] = 'Assets';
+        }
+
+        if (in_array('spareparts', $targets)) {
+            \App\Models\Sparepart::truncate();
+            $cleared[] = 'Spareparts';
+        }
+
+        if (in_array('vendors', $targets)) {
+            \App\Models\Vendor::truncate();
+            $cleared[] = 'Vendors';
+        }
+
+        if (in_array('movements', $targets) || in_array('equipment_movements', $targets)) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('equipment_movements')) {
+                \Illuminate\Support\Facades\DB::table('equipment_movements')->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('asset_movements')) {
+                \Illuminate\Support\Facades\DB::table('asset_movements')->delete();
+            }
+            \App\Models\Ticket::query()->update([
+                'sent_to_workshop_date' => null,
+                'sent_by' => null,
+                'received_by_workshop' => null,
+                'returned_date' => null,
+                'returned_by' => null,
+                'received_by_user' => null,
+                'equipment_completeness' => null,
+            ]);
+            $cleared[] = 'Equipment Movements';
+        }
+
+        if (in_array('documents', $targets) || in_array('document_center', $targets)) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('documents')) {
+                \App\Models\Document::truncate();
+            }
+            $cleared[] = 'Document Center';
+        }
+
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+
+        $msg = 'Data input (' . implode(', ', $cleared) . ') berhasil dibersihkan dari database.';
+        return redirect()->back()->with('success', $msg);
+    })->name('settings.wipe');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

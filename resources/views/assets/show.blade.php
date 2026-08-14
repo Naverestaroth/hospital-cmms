@@ -80,60 +80,94 @@
 
         </div>
 
-        <!-- Asset Information Card -->
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Equipment Specification & Location</h2>
-            
-            <div class="mt-4 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 text-sm">
+        <!-- Main Grid: Equipment Specification & Asset QR Code -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Asset Information Card -->
+            <div class="lg:col-span-2 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between">
                 <div>
-                    <span class="text-xs text-slate-400 block">Equipment Name</span>
-                    <span class="font-semibold text-slate-800">{{ $asset->asset_name }}</span>
+                    <h2 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Equipment Specification & Location</h2>
+                    
+                    <div class="mt-4 grid grid-cols-2 gap-6 sm:grid-cols-3 text-sm">
+                        <div>
+                            <span class="text-xs text-slate-400 block">Equipment Name</span>
+                            <span class="font-semibold text-slate-800">{{ $asset->asset_name }}</span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-slate-400 block">Brand</span>
+                            <span class="font-semibold text-slate-800">{{ $asset->brand ?? '—' }}</span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-slate-400 block">Type / Model</span>
+                            <span class="font-semibold text-slate-800">{{ $asset->type ?? '—' }}</span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-slate-400 block">Serial Number</span>
+                            <span class="font-mono font-semibold text-slate-800">{{ $asset->serial_number ?? '—' }}</span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-slate-400 block">Room / Location</span>
+                            <span class="font-semibold text-slate-800">{{ $asset->room ?? '—' }}</span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-slate-400 block">Procurement Year</span>
+                            <span class="font-semibold text-slate-800">{{ $asset->procurement_year ?? '—' }}</span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-slate-400 block">Asset Code</span>
+                            <span class="font-mono font-semibold text-slate-800">{{ $asset->asset_code }}</span>
+                        </div>
+
+                        <div>
+                            <span class="text-xs text-slate-400 block">Current Status</span>
+                            <span class="font-semibold text-slate-800 capitalize">{{ $asset->status }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                @if($asset->description)
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <span class="text-xs text-slate-400 block mb-1">Equipment Description / Remarks</span>
+                        <div class="text-xs text-slate-700 bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+                            {{ $asset->description }}
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Asset QR Code Card -->
+            <div class="lg:col-span-1 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col items-center justify-between text-center space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 w-full border-b border-slate-100 pb-3 text-left">Asset QR Code</h2>
+                
+                <div class="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm inline-block">
+                    {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(140)->margin(1)->generate(route('assets.show', $asset)) !!}
                 </div>
 
                 <div>
-                    <span class="text-xs text-slate-400 block">Brand</span>
-                    <span class="font-semibold text-slate-800">{{ $asset->brand ?? '—' }}</span>
+                    <span class="text-[10px] font-semibold text-slate-400 block uppercase tracking-wider">Asset Identity</span>
+                    <span class="font-mono font-extrabold text-slate-900 text-lg tracking-tight">
+                        {{ $asset->asset_code ?: ('AST-' . $asset->id) }}
+                    </span>
                 </div>
 
-                <div>
-                    <span class="text-xs text-slate-400 block">Type / Model</span>
-                    <span class="font-semibold text-slate-800">{{ $asset->type ?? '—' }}</span>
-                </div>
-
-                <div>
-                    <span class="text-xs text-slate-400 block">Serial Number</span>
-                    <span class="font-mono font-semibold text-slate-800">{{ $asset->serial_number ?? '—' }}</span>
-                </div>
-
-                <div>
-                    <span class="text-xs text-slate-400 block">Room / Location</span>
-                    <span class="font-semibold text-slate-800">{{ $asset->room ?? '—' }}</span>
-                </div>
-
-                <div>
-                    <span class="text-xs text-slate-400 block">Procurement Year</span>
-                    <span class="font-semibold text-slate-800">{{ $asset->procurement_year ?? '—' }}</span>
-                </div>
-
-                <div>
-                    <span class="text-xs text-slate-400 block">Asset Code</span>
-                    <span class="font-mono font-semibold text-slate-800">{{ $asset->asset_code }}</span>
-                </div>
-
-                <div>
-                    <span class="text-xs text-slate-400 block">Current Status</span>
-                    <span class="font-semibold text-slate-800 capitalize">{{ $asset->status }}</span>
+                <div class="flex items-center justify-center gap-2.5 w-full pt-1">
+                    <a href="{{ route('assets.qr.download', $asset) }}" class="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition text-center flex items-center justify-center gap-1.5">
+                        <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download QR
+                    </a>
+                    <a href="{{ route('assets.qr.print', $asset) }}" target="_blank" class="flex-1 rounded-xl bg-emerald-600 px-3 py-2.5 text-xs font-semibold text-white hover:bg-emerald-700 shadow-sm transition text-center flex items-center justify-center gap-1.5">
+                        <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        Print QR
+                    </a>
                 </div>
             </div>
 
-            @if($asset->description)
-                <div class="mt-4 pt-3 border-t border-slate-100">
-                    <span class="text-xs text-slate-400 block mb-1">Equipment Description / Remarks</span>
-                    <div class="text-xs text-slate-700 bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
-                        {{ $asset->description }}
-                    </div>
-                </div>
-            @endif
         </div>
 
         <!-- Merged Chronological Asset Timeline -->

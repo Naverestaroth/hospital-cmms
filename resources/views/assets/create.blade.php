@@ -149,11 +149,7 @@
                 </h2>
 
                 @php
-                    $predefinedStatuses = ['berfungsi', 'dalam perbaikan', 'rusak', 'proses penghapusan'];
-                    $oldStatus = old('status', old('status_select'));
-                    $oldStatusCustom = old('status_custom');
-                    $isCustom = old('status_select') === 'Other' || (!empty($oldStatus) && !in_array($oldStatus, $predefinedStatuses) && $oldStatus !== 'Other');
-                    $selectedOption = $isCustom ? 'Other' : ($oldStatus ?? '');
+                    $selectedStatus = old('status_select', old('status'));
                 @endphp
 
                 <div>
@@ -167,27 +163,13 @@
                         class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
 
                         <option value="">-- Select Status --</option>
-                        <option value="berfungsi" {{ $selectedOption === 'berfungsi' ? 'selected' : '' }}>Berfungsi</option>
-                        <option value="dalam perbaikan" {{ $selectedOption === 'dalam perbaikan' ? 'selected' : '' }}>dalam perbaikan</option>
-                        <option value="rusak" {{ $selectedOption === 'rusak' ? 'selected' : '' }}>Rusak</option>
-                        <option value="proses penghapusan" {{ $selectedOption === 'proses penghapusan' ? 'selected' : '' }}>Proses Penghapusan</option>
-                        <option value="Other" {{ $selectedOption === 'Other' ? 'selected' : '' }}>Other</option>
+                        <option value="berfungsi" {{ $selectedStatus === 'berfungsi' ? 'selected' : '' }}>Berfungsi</option>
+                        <option value="dalam perbaikan" {{ $selectedStatus === 'dalam perbaikan' ? 'selected' : '' }}>dalam perbaikan</option>
+                        <option value="rusak" {{ $selectedStatus === 'rusak' ? 'selected' : '' }}>Rusak</option>
+                        <option value="proses penghapusan" {{ $selectedStatus === 'proses penghapusan' ? 'selected' : '' }}>Proses Penghapusan</option>
+                        <option value="Other" {{ $selectedStatus === 'Other' ? 'selected' : '' }}>Other</option>
 
                     </select>
-                </div>
-
-                {{-- Custom Status Input (Shown when "Other" is selected) --}}
-                <div id="custom-status-container" class="{{ $selectedOption === 'Other' ? '' : 'hidden' }}">
-                    <label class="mb-2 block text-sm font-medium text-slate-700">
-                        Custom Status
-                    </label>
-                    <input
-                        type="text"
-                        name="status_custom"
-                        id="asset-status-custom"
-                        value="{{ $oldStatusCustom ?: ($isCustom ? $oldStatus : '') }}"
-                        placeholder="e.g. Rusak kabel elektroda"
-                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
                 </div>
 
                 <div>
@@ -202,27 +184,6 @@
                 </div>
 
             </div>
-
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const statusSelect = document.getElementById('asset-status-select');
-                    const customContainer = document.getElementById('custom-status-container');
-                    const customInput = document.getElementById('asset-status-custom');
-
-                    function toggleCustomStatus() {
-                        if (statusSelect && statusSelect.value === 'Other') {
-                            customContainer.classList.remove('hidden');
-                        } else if (customContainer) {
-                            customContainer.classList.add('hidden');
-                        }
-                    }
-
-                    if (statusSelect) {
-                        statusSelect.addEventListener('change', toggleCustomStatus);
-                        toggleCustomStatus();
-                    }
-                });
-            </script>
 
 
             <div class="flex justify-end gap-4">

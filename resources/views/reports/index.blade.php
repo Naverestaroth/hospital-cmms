@@ -28,13 +28,11 @@
 
         <!-- Statistics -->
 
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-
+        <div class="bg-transparent">
 
             <div class="grid grid-cols-3 gap-6">
 
-                <div class="rounded-2xl bg-white p-6 shadow">
+                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
                     <h2>Assets</h2>
 
@@ -46,7 +44,7 @@
 
                 </div>
 
-                <div class="rounded-2xl bg-white p-6 shadow">
+                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
                     <h2>Tickets</h2>
 
@@ -58,7 +56,7 @@
 
                 </div>
 
-                <div class="rounded-2xl bg-white p-6 shadow">
+                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
                     <h2>Preventive</h2>
 
@@ -70,7 +68,7 @@
 
                 </div>
 
-                <div class="rounded-2xl bg-white p-6 shadow">
+                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
                     <h2>Corrective</h2>
 
@@ -82,7 +80,7 @@
 
                 </div>
 
-                <div class="rounded-2xl bg-white p-6 shadow">
+                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
                     <h2>Spareparts</h2>
 
@@ -94,7 +92,7 @@
 
                 </div>
 
-                <div class="rounded-2xl bg-white p-6 shadow">
+                <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
                     <h2>Vendors</h2>
 
@@ -107,8 +105,6 @@
                 </div>
 
             </div>
-
-
 
         </div>
 
