@@ -11,6 +11,9 @@ return new class extends Migration
         Schema::create('technicians', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('duty_status')->default('On Duty');
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });

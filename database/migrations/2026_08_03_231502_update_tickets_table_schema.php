@@ -18,8 +18,10 @@ return new class extends Migration
             $table->text('cancellation_reason')->nullable()->after('rejection_reason');
         });
 
-        // Change enum status column to string to support full hospital workflow status pipeline
-        DB::statement("ALTER TABLE tickets MODIFY status VARCHAR(255) NOT NULL DEFAULT 'Waiting Approval'");
+        // Change enum status column to string to support full hospital workflow status pipeline on MySQL
+        if (DB::connection()->getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE tickets MODIFY status VARCHAR(255) NOT NULL DEFAULT 'Waiting Approval'");
+        }
     }
 
     public function down(): void

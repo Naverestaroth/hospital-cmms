@@ -31,23 +31,36 @@
         <!-- Search & View Mode Switcher -->
         <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-            <form action="{{ route('assets.index') }}" method="GET" class="flex-1 flex gap-4">
+            <form action="{{ route('assets.index') }}" method="GET" class="flex-1 flex flex-wrap gap-3 items-center">
                 <input type="hidden" name="view" :value="viewMode">
+
+                {{-- Filter Per Ruangan Dropdown --}}
+                <select
+                    name="room"
+                    onchange="this.form.submit()"
+                    class="rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none bg-white font-medium text-slate-700 min-w-[220px]">
+                    <option value="">Semua Ruangan</option>
+                    @foreach($rooms as $rm)
+                        <option value="{{ $rm }}" {{ (request('room') == $rm || (isset($selectedRoom) && $selectedRoom == $rm)) ? 'selected' : '' }}>
+                            {{ $rm }}
+                        </option>
+                    @endforeach
+                </select>
 
                 <input
                     type="text"
                     name="search"
                     placeholder="Search asset..."
-                    class="flex-1 rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none"
+                    class="flex-1 min-w-[200px] rounded-xl border border-slate-200 px-4 py-3 focus:border-emerald-500 focus:outline-none"
                     value="{{ request('search') }}">
 
                 <button
                     type="submit"
-                    class="rounded-xl border border-slate-200 px-5 hover:bg-slate-100">
+                    class="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold hover:bg-slate-100 transition">
                     Search
                 </button>
 
-                <a href="{{ route('assets.index') }}" class="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm hover:bg-slate-100">Reset</a>
+                <a href="{{ route('assets.index') }}" class="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold hover:bg-slate-100 transition">Reset</a>
             </form>
 
             <!-- Pilihan Tampilan Switcher (Default / Per Ruangan) -->
@@ -85,14 +98,16 @@
                 <thead class="bg-slate-50">
 
                     @php
-                    function sortUrl($field)
-                    {
-                    return request()->fullUrlWithQuery([
-                    'sort' => $field,
-                    'direction' => request('sort') === $field && request('direction') === 'asc'
-                    ? 'desc'
-                    : 'asc'
-                    ]);
+                    if (!function_exists('sortUrl')) {
+                        function sortUrl($field)
+                        {
+                            return request()->fullUrlWithQuery([
+                                'sort' => $field,
+                                'direction' => request('sort') === $field && request('direction') === 'asc'
+                                    ? 'desc'
+                                    : 'asc'
+                            ]);
+                        }
                     }
                     @endphp
 

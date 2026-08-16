@@ -107,7 +107,7 @@
                             Pilih Kategori Data Input Yang Ingin Dibersihkan:
                         </label>
                         <div class="flex items-center gap-3 text-xs">
-                            <button type="button" @click="selectedTargets = ['assets', 'tickets', 'preventive', 'corrective', 'spareparts', 'vendors', 'movements', 'documents']" class="text-blue-600 hover:underline font-semibold">
+                            <button type="button" @click="selectedTargets = ['assets', 'tickets', 'preventive', 'corrective', 'schedules', 'movements', 'documents', 'spareparts', 'vendors']" class="text-blue-600 hover:underline font-semibold">
                                 Pilih Semua
                             </button>
                             <span class="text-slate-300">•</span>
@@ -124,8 +124,18 @@
                                :class="selectedTargets.includes('assets') ? 'border-red-300 bg-red-50/40 ring-2 ring-red-500/20' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'">
                             <input type="checkbox" name="targets[]" value="assets" class="mt-1 rounded border-slate-300 text-red-600 focus:ring-red-500" x-model="selectedTargets">
                             <div>
-                                <span class="font-bold text-slate-900 text-sm block">Data Assets</span>
+                                <span class="font-bold text-slate-900 text-sm block">Assets / Equipment</span>
                                 <span class="text-xs text-slate-500">Peralatan medis & non-medis rumah sakit</span>
+                            </div>
+                        </label>
+
+                        <!-- Checkbox Schedules -->
+                        <label class="flex items-start gap-3 rounded-2xl border p-4 transition cursor-pointer"
+                               :class="selectedTargets.includes('schedules') ? 'border-red-300 bg-red-50/40 ring-2 ring-red-500/20' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'">
+                            <input type="checkbox" name="targets[]" value="schedules" class="mt-1 rounded border-slate-300 text-red-600 focus:ring-red-500" x-model="selectedTargets">
+                            <div>
+                                <span class="font-bold text-slate-900 text-sm block">Jadwal & History Teknisi</span>
+                                <span class="text-xs text-slate-500">Input jadwal Excel & history shift/izin</span>
                             </div>
                         </label>
 

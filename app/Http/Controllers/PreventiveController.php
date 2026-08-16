@@ -49,8 +49,9 @@ class PreventiveController extends Controller
             ->pluck('room');
 
         $assets = Asset::orderBy('asset_name')->get();
+        $technicians = \App\Models\Technician::onDuty()->orderBy('name')->pluck('name');
 
-        return view('preventives.create', compact('rooms', 'assets'));
+        return view('preventives.create', compact('rooms', 'assets', 'technicians'));
     }
 
 
@@ -59,6 +60,16 @@ class PreventiveController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->filled('schedule_date')) {
+            $rawDate = trim((string) $request->schedule_date);
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $rawDate)) {
+                try {
+                    $formatted = \Carbon\Carbon::createFromFormat('d/m/Y', $rawDate)->format('Y-m-d');
+                    $request->merge(['schedule_date' => $formatted]);
+                } catch (\Throwable $e) {}
+            }
+        }
+
         $request->validate([
             // Report
             'room' => 'nullable|string|max:255',
@@ -72,7 +83,6 @@ class PreventiveController extends Controller
             'serial_number' => 'nullable|string|max:255',
             'procurement_year' => ['nullable', 'regex:/^\d{4}$/'],
 
-
             // Other fields (all optional / nullable)
             'technician' => 'nullable|string|max:255',
             'condition' => 'nullable|string|max:255',
@@ -85,9 +95,12 @@ class PreventiveController extends Controller
             'problem_found' => 'nullable|string',
         ]);
 
-
         $payload = $request->all();
         unset($payload['asset_id']);
+
+        if (empty($payload['schedule_date'])) {
+            $payload['schedule_date'] = date('Y-m-d');
+        }
 
         if (!empty($payload['procurement_year'])) {
             $year = (int) $payload['procurement_year'];
@@ -95,7 +108,6 @@ class PreventiveController extends Controller
         }
 
         Preventive::create($payload);
-
 
         return redirect()->route('preventives.index')->with('success', 'Preventive maintenance scheduled successfully.');
     }
@@ -120,11 +132,12 @@ class PreventiveController extends Controller
             ->orderBy('room')
             ->pluck('room');
 
-        if ($preventive->room && !$rooms->contains($preventive->room)) {
-            $rooms->push($preventive->room);
+        $technicians = \App\Models\Technician::onDuty()->orderBy('name')->pluck('name');
+        if ($preventive->technician && !$technicians->contains($preventive->technician)) {
+            $technicians->push($preventive->technician);
         }
 
-        return view('preventives.edit', compact('preventive', 'rooms'));
+        return view('preventives.edit', compact('preventive', 'rooms', 'technicians'));
     }
 
     /**

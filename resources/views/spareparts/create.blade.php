@@ -4,7 +4,7 @@
 
         <h1 class="mb-6 text-3xl font-bold">
 
-            Create Maintenance Ticket
+            Create Spare parts inventory
 
         </h1>
 
@@ -139,7 +139,7 @@
                 <button
 
                     class="rounded-2xl bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700">
-                    Save Vendor
+                    Save Spare Parts Inventory
 
                 </button>
 

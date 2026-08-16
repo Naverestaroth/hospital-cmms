@@ -93,7 +93,8 @@ class TicketController extends Controller
             ->orderBy('room')
             ->pluck('room');
 
-        $technicians = Technician::orderBy('name')->get();
+        // Only show technicians based on On Duty status
+        $technicians = Technician::onDuty()->orderBy('name')->get();
         $assets = Asset::orderBy('asset_name')->get();
 
         return view('tickets.create', compact('rooms', 'technicians', 'assets'));
@@ -171,7 +172,7 @@ class TicketController extends Controller
     public function show(Ticket $ticket)
     {
         $ticket->load(['asset', 'technicians', 'activities', 'workLogs']);
-        $technicians = Technician::orderBy('name')->get();
+        $technicians = Technician::onDuty()->orderBy('name')->get();
 
         return view('tickets.show', compact('ticket', 'technicians'));
     }
@@ -185,7 +186,12 @@ class TicketController extends Controller
             ->orderBy('room')
             ->pluck('room');
 
-        $technicians = Technician::orderBy('name')->get();
+        $assignedTechIds = $ticket->technicians->pluck('id')->toArray();
+        $technicians = Technician::onDuty()
+            ->orWhereIn('id', $assignedTechIds)
+            ->orderBy('name')
+            ->get();
+
         $assets = Asset::orderBy('asset_name')->get();
         $ticket->load('technicians');
 

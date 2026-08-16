@@ -47,7 +47,9 @@ class CorrectiveController extends Controller
             }
         }
 
-        return view('correctives.create', compact('ticket'));
+        $techniciansList = \App\Models\Technician::onDuty()->orderBy('name')->pluck('name');
+
+        return view('correctives.create', compact('ticket', 'techniciansList'));
     }
 
     public function store(Request $request)
@@ -89,9 +91,6 @@ class CorrectiveController extends Controller
         }
 
         $payload = $validated;
-        unset($payload['jam_laporan']);
-        unset($payload['jam_visit']);
-        unset($payload['distributor']);
 
         if (!empty($payload['tanggal_instal'])) {
             $val = trim((string) $payload['tanggal_instal']);

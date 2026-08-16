@@ -51,4 +51,26 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_users_can_authenticate_in_developer_mode(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+            'login_type' => 'developer',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('settings', absolute: false));
+    }
+
+    public function test_direct_quick_developer_login_without_credentials(): void
+    {
+        $response = $this->post('/login/developer-quick');
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('settings', absolute: false));
+    }
 }

@@ -43,15 +43,9 @@ $results = [
     'Other',
 ];
 
-$techniciansList = [
-    'Susanto',
-    'Hutami',
-    'Zaky',
-    'Lisa',
-    'Syarif',
-    'Syiefa',
-    'Ghazali',
-];
+$techniciansList = (isset($techniciansList) && count($techniciansList) > 0)
+    ? $techniciansList
+    : \App\Models\Technician::onDuty()->orderBy('name')->pluck('name');
 
 // Reconstruct arrays from model
 $savedServiceTypes = is_array($corrective->service_type) ? $corrective->service_type : [];

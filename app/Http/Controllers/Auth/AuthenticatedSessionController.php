@@ -28,7 +28,33 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if ($request->input('login_type') === 'developer' || $request->boolean('developer_mode')) {
+            $request->session()->put('developer_mode', true);
+            return redirect()->route('settings')->with('success', 'Logged in successfully under Developer Mode.');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
+    }
+
+    /**
+     * Authenticate directly as Developer without requiring email and password.
+     */
+    public function developerQuickLogin(Request $request): RedirectResponse
+    {
+        $user = \App\Models\User::first();
+        if (! $user) {
+            $user = \App\Models\User::create([
+                'name' => 'Developer Admin',
+                'email' => 'developer@hospital.com',
+                'password' => bcrypt('password'),
+            ]);
+        }
+
+        Auth::login($user);
+        $request->session()->regenerate();
+        $request->session()->put('developer_mode', true);
+
+        return redirect()->route('settings')->with('success', 'Logged in directly as Developer.');
     }
 
     /**

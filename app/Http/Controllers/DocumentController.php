@@ -50,6 +50,21 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->filled('issue_date')) {
+            $val = $request->input('issue_date');
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val)) {
+                $parts = explode('/', $val);
+                $request->merge(['issue_date' => "{$parts[2]}-{$parts[1]}-{$parts[0]}"]);
+            }
+        }
+
+        if ($request->filled('expiry_date')) {
+            $val = $request->input('expiry_date');
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $val)) {
+                $parts = explode('/', $val);
+                $request->merge(['expiry_date' => "{$parts[2]}-{$parts[1]}-{$parts[0]}"]);
+            }
+        }
 
         $request->validate([
 

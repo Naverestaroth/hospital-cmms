@@ -124,7 +124,13 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-amber-900 block">1. Equipment Sent to Workshop</span>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
-                    <input type="date" name="sent_to_workshop_date" value="{{ old('sent_to_workshop_date', $ticket?->sent_to_workshop_date?->format('Y-m-d')) }}" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs">
+                    <input
+                        type="date"
+                        id="sent_to_workshop_date"
+                        name="sent_to_workshop_date"
+                        value="{{ old('sent_to_workshop_date', $ticket?->sent_to_workshop_date?->format('Y-m-d')) }}"
+                        class="w-full rounded-xl border border-slate-300 p-2.5 text-xs date-picker-dmy"
+                        placeholder="DD/MM/YYYY">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Handed Over By (Penyerah)</label>
@@ -141,7 +147,13 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-emerald-900 block">2. Equipment Returned</span>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
-                    <input type="date" name="returned_date" value="{{ old('returned_date', $ticket?->returned_date?->format('Y-m-d')) }}" class="w-full rounded-xl border border-slate-300 p-2.5 text-xs">
+                    <input
+                        type="date"
+                        id="returned_date"
+                        name="returned_date"
+                        value="{{ old('returned_date', $ticket?->returned_date?->format('Y-m-d')) }}"
+                        class="w-full rounded-xl border border-slate-300 p-2.5 text-xs date-picker-dmy"
+                        placeholder="DD/MM/YYYY">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Handed Over By (Penyerah)</label>
@@ -155,25 +167,55 @@
         </div>
     </div>
 
+    <!-- Flatpickr Calendar DD/MM/YYYY Display Configuration -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr(".date-picker-dmy", {
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "d/m/Y",
+                    allowInput: true
+                });
+            }
+        });
+    </script>
+
     <!-- Assign Technicians -->
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <label class="mb-2 block text-sm font-semibold text-slate-800">
             Assign Technician(s) (Optional)
         </label>
-        <p class="mb-3 text-xs text-slate-500">Select IPSRS technicians to assign to this ticket.</p>
+        <p class="mb-3 text-xs text-slate-500">Select IPSRS technicians to assign to this ticket. Only technicians currently <strong>On Duty</strong> are available for assignment.</p>
         
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            @foreach ($technicians as $tech)
-                <label class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 transition hover:bg-slate-100 cursor-pointer">
-                    <input
-                        type="checkbox"
-                        name="technician_ids[]"
-                        value="{{ $tech->id }}"
-                        class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                        {{ in_array($tech->id, old('technician_ids', $assignedTechIds)) ? 'checked' : '' }}>
-                    <span class="font-medium text-slate-800">{{ $tech->name }}</span>
-                </label>
-            @endforeach
-        </div>
+        @if($technicians->count() > 0)
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                @foreach ($technicians as $tech)
+                    <label class="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 transition hover:bg-slate-100 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            name="technician_ids[]"
+                            value="{{ $tech->id }}"
+                            class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                            {{ in_array($tech->id, old('technician_ids', $assignedTechIds)) ? 'checked' : '' }}>
+                        <div class="flex flex-col">
+                            <span class="font-medium text-slate-800 leading-tight">{{ $tech->name }}</span>
+                            <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1 mt-0.5">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> On Duty
+                            </span>
+                        </div>
+                    </label>
+                @endforeach
+            </div>
+        @else
+            <div class="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-900 flex items-center gap-2">
+                <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>No technicians are currently <strong>On Duty</strong>. Off Duty technicians are hidden from assignment.</span>
+            </div>
+        @endif
     </div>
 </div>
