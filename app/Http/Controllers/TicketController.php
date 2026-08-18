@@ -66,9 +66,20 @@ class TicketController extends Controller
             $query->whereDate('created_at', '<=', $request->created_to);
         }
 
-        $tickets = $query->orderBy($sortField, $sortDirection)
-            ->paginate(15)
-            ->withQueryString();
+        $baseQuery = $query->orderBy($sortField, $sortDirection);
+
+        // Compute room pages for cross-page room navigation
+        $roomPages = [];
+        $allRoomsOrdered = (clone $baseQuery)->pluck('room');
+        foreach ($allRoomsOrdered as $index => $room) {
+            $roomName = !empty(trim((string)$room)) ? trim((string)$room) : 'Unassigned / Ruangan Tidak Ditentukan';
+            if (!isset($roomPages[$roomName])) {
+                $roomPages[$roomName] = (int) floor($index / 15) + 1;
+            }
+        }
+        ksort($roomPages);
+
+        $tickets = $baseQuery->paginate(15)->withQueryString();
 
         $statusCounts = [
             'all' => Ticket::count(),
@@ -80,7 +91,7 @@ class TicketController extends Controller
             'closed' => Ticket::where('status', 'Closed')->count(),
         ];
 
-        return view('tickets.index', compact('tickets', 'sortField', 'sortDirection', 'statusCounts'));
+        return view('tickets.index', compact('tickets', 'sortField', 'sortDirection', 'statusCounts', 'roomPages'));
     }
 
     public function create()

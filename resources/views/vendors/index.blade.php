@@ -63,142 +63,51 @@
 
         <!-- Table -->
 
-        <div class="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
+<x-table class="rounded-3xl border border-slate-200">
+    @php
+        function sortUrl($field) {
+            return request()->fullUrlWithQuery([
+                'sort' => $field,
+                'direction' => request('sort') === $field && request('direction') === 'asc' ? 'desc' : 'asc',
+            ]);
+        }
+    @endphp
+    <x-slot name="thead">
+        <tr class="border-t transition hover:bg-slate-50">
+            <th class="px-6 py-4 text-left">No</th>
+            <th class="px-6 py-4 text-left"><a href="{{ sortUrl('vendor_code') }}">Vendor Code</a></th>
+            <th class="px-6 py-4 text-left"><a href="{{ sortUrl('vendor_name') }}">Vendor Name</a></th>
+            <th class="px-6 py-4 text-left"><a href="{{ sortUrl('contact_person') }}">Contact Person</a></th>
+            <th class="px-6 py-4 text-left"><a href="{{ sortUrl('phone') }}">Phone</a></th>
+            <th class="px-6 py-4 text-left"><a href="{{ sortUrl('email') }}">Email</a></th>
+            <th class="px-6 py-4 text-center">Action</th>
+        </tr>
+    </x-slot>
 
-            <table class="min-w-full">
-
-                <thead class="bg-slate-50">
-
-                    @php
-                    function sortUrl($field)
-                    {
-                        return request()->fullUrlWithQuery([
-                            'sort' => $field,
-                            'direction' => request('sort') === $field && request('direction') === 'asc' ? 'desc' : 'asc'
-                        ]);
-                    }
-                    @endphp
-
-                    <tr class="border-t transition hover:bg-slate-50">
-
-                        <th class="px-6 py-4 text-left">No</th>
-                        
-                        <th class="px-6 py-4 text-left">
-                            <a href="{{ sortUrl('vendor_code') }}">
-                                Vendor Code
-                            </a>
-                        </th>
-                        
-                        <th class="px-6 py-4 text-left">
-                            <a href="{{ sortUrl('vendor_name') }}">
-                                Vendor Name
-                            </a>
-                        </th>
-                        
-                        <th class="px-6 py-4 text-left">
-                            <a href="{{ sortUrl('contact_person') }}">
-                                Contact Person
-                            </a>
-                        </th>
-                        
-                        <th class="px-6 py-4 text-left">
-                            <a href="{{ sortUrl('phone') }}">
-                                Phone
-                            </a>
-                        </th>
-                        
-                        <th class="px-6 py-4 text-left">
-                            <a href="{{ sortUrl('email') }}">
-                                Email
-                            </a>
-                        </th>
-                        
-                        <th class="px-6 py-4 text-center">Action</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @forelse($vendors as $vendor)
-
-                    <tr class="border-t border-slate-100">
-
-                        <td class="px-6 py-4">
-                            {{ $vendors->firstItem() + $loop->index }}
-                        </td>
-
-                        <td class="px-6 py-4">
-                            {{ $vendor->vendor_code }}
-                        </td>
-
-                        <td class="px-6 py-4 font-medium">
-                            {{ $vendor->vendor_name }}
-                        </td>
-
-                        <td class="px-6 py-4">
-                            {{ $vendor->contact_person }}
-                        </td>
-
-                        <td class="px-6 py-4">
-                            {{ $vendor->phone }}
-                        </td>
-
-                        <td class="px-6 py-4">
-                            {{ $vendor->email }}
-                        </td>
-
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex items-center justify-center gap-4">
-                                <a
-                                    href="{{ route('vendors.show', $vendor) }}"
-                                    class="text-blue-600 hover:underline">
-                                    View
-                                </a>
-
-                                <a
-                                    href="{{ route('vendors.edit', $vendor) }}"
-                                    class="text-emerald-700 hover:underline">
-                                    Edit
-                                </a>
-
-                                <form
-                                    action="{{ route('vendors.destroy', $vendor) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Are you sure you want to delete this vendor?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button
-                                        type="submit"
-                                        class="text-red-600 hover:underline">
-                                        Delete
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-
-                    </tr>
-
-                    @empty
-
-                    <tr>
-
-                        <td colspan="7" class="py-10 text-center text-slate-500">
-
-                            No vendor data available.
-
-                        </td>
-
-                    </tr>
-
-                    @endforelse
-
-                </tbody>
-
-            </table>
-
-        </div>
+    @forelse($vendors as $vendor)
+        <tr class="border-t border-slate-100">
+            <td class="px-6 py-4">{{ $vendors->firstItem() + $loop->index }}</td>
+            <td class="px-6 py-4">{{ $vendor->vendor_code }}</td>
+            <td class="px-6 py-4 font-medium">{{ $vendor->vendor_name }}</td>
+            <td class="px-6 py-4">{{ $vendor->contact_person }}</td>
+            <td class="px-6 py-4">{{ $vendor->phone }}</td>
+            <td class="px-6 py-4">{{ $vendor->email }}</td>
+            <td class="px-6 py-4 text-center">
+                <div class="flex items-center justify-center gap-4">
+                    <a href="{{ route('vendors.show', $vendor) }}" class="text-blue-600 hover:underline">View</a>
+                    <a href="{{ route('vendors.edit', $vendor) }}" class="text-emerald-700 hover:underline">Edit</a>
+                    <form action="{{ route('vendors.destroy', $vendor) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this vendor?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-600 hover:underline">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    @empty
+        <tr><td colspan="7" class="py-10 text-center text-slate-500">No vendor data available.</td></tr>
+    @endforelse
+</x-table>
 
         <!-- Pagination -->
         <div class="mt-6">

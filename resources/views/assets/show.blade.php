@@ -281,104 +281,91 @@
             </div>
 
             <!-- Tab Content 1: Ticket History -->
-            <div x-show="activeTab === 'tickets'" class="space-y-4">
-                <div class="overflow-x-auto max-h-[480px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-2xl">
-                    <table class="min-w-full text-xs">
-                        <thead class="bg-slate-50 text-slate-600 font-semibold uppercase border-b sticky top-0 bg-white shadow-xs z-10">
-                            <tr>
-                                <th class="px-4 py-3 text-left">Ticket Code</th>
-                                <th class="px-4 py-3 text-left">Created Date</th>
-                                <th class="px-4 py-3 text-left">Priority</th>
-                                <th class="px-4 py-3 text-left">Status</th>
-                                <th class="px-4 py-3 text-left">Reported By</th>
-                                <th class="px-4 py-3 text-left">Assigned Technician(s)</th>
-                                <th class="px-4 py-3 text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($asset->tickets as $ticket)
-                                <tr class="hover:bg-slate-50/80 transition">
-                                    <td class="px-4 py-3 font-semibold text-slate-900">{{ $ticket->ticket_code }}</td>
-                                    <td class="px-4 py-3 text-slate-600">{{ $ticket->created_at->format('d M Y H:i') }}</td>
-                                    <td class="px-4 py-3">
-                                        <span class="font-medium {{ $ticket->priority === 'High' ? 'text-red-600' : 'text-slate-700' }}">{{ $ticket->priority }}</span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-[10px] font-bold text-slate-700">
-                                            {{ $ticket->status }}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-slate-700">{{ $ticket->reported_by }}</td>
-                                    <td class="px-4 py-3">
-                                        @if($ticket->technicians->count() > 0)
-                                            <span class="font-medium text-slate-800">{{ $ticket->technicians->pluck('name')->implode(', ') }}</span>
-                                        @else
-                                            <span class="text-slate-400 italic">Unassigned</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <a href="{{ route('tickets.show', $ticket) }}" class="font-bold text-blue-600 hover:underline">View</a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="py-10 text-center text-slate-400">
-                                        <div class="space-y-1">
-                                            <p class="font-bold text-slate-700 text-sm">No Ticket History</p>
-                                            <p class="text-xs text-slate-400">No reactive tickets recorded for this asset.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <div x-show="activeTab === 'tickets'"><x-table class="max-h-[480px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-2xl">
+    <x-slot name="thead">
+        <tr>
+            <th class="px-4 py-3 text-left">Ticket Code</th>
+            <th class="px-4 py-3 text-left">Created Date</th>
+            <th class="px-4 py-3 text-left">Priority</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Reported By</th>
+            <th class="px-4 py-3 text-left">Assigned Technician(s)</th>
+            <th class="px-4 py-3 text-center">Action</th>
+        </tr>
+    </x-slot>
+
+    @forelse($asset->tickets as $ticket)
+        <tr class="hover:bg-slate-50/80 transition">
+            <td class="px-4 py-3 font-semibold text-slate-900">{{ $ticket->ticket_code }}</td>
+            <td class="px-4 py-3 text-slate-600">{{ $ticket->created_at->format('d M Y H:i') }}</td>
+            <td class="px-4 py-3">
+                <span class="font-medium {{ $ticket->priority === 'High' ? 'text-red-600' : 'text-slate-700' }}">{{ $ticket->priority }}</span>
+            </td>
+            <td class="px-4 py-3">
+                <span class="rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-[10px] font-bold text-slate-700">{{ $ticket->status }}</span>
+            </td>
+            <td class="px-4 py-3 text-slate-700">{{ $ticket->reported_by }}</td>
+            <td class="px-4 py-3">
+                @if($ticket->technicians->count() > 0)
+                    <span class="font-medium text-slate-800">{{ $ticket->technicians->pluck('name')->implode(', ') }}</span>
+                @else
+                    <span class="text-slate-400 italic">Unassigned</span>
+                @endif
+            </td>
+            <td class="px-4 py-3 text-center">
+                <a href="{{ route('tickets.show', $ticket) }}" class="font-bold text-blue-600 hover:underline">View</a>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="7" class="py-10 text-center text-slate-400">
+                <div class="space-y-1">
+                    <p class="font-bold text-slate-700 text-sm">No Ticket History</p>
+                    <p class="text-xs text-slate-400">No reactive tickets recorded for this asset.</p>
                 </div>
+            </td>
+        </tr>
+    @endforelse
+</x-table>
             </div>
 
             <!-- Tab Content 2: Corrective Maintenance -->
             <div x-show="activeTab === 'correctives'" x-cloak class="space-y-4">
-                <div class="overflow-x-auto max-h-[480px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-2xl">
-                    <table class="min-w-full text-xs">
-                        <thead class="bg-slate-50 text-slate-600 font-semibold uppercase border-b sticky top-0 bg-white shadow-xs z-10">
-                            <tr>
-                                <th class="px-4 py-3 text-left">Repair Date</th>
-                                <th class="px-4 py-3 text-left">Problem Symptoms</th>
-                                <th class="px-4 py-3 text-left">Action Solution</th>
-                                <th class="px-4 py-3 text-left">Sparepart Used</th>
-                                <th class="px-4 py-3 text-left">Technician</th>
-                                <th class="px-4 py-3 text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($asset->correctives as $corrective)
-                                @php
-                                    $techStr = is_array($corrective->technician) ? implode(', ', $corrective->technician) : ($corrective->technician ?: '—');
-                                @endphp
-                                <tr class="hover:bg-slate-50/80 transition">
-                                    <td class="px-4 py-3 font-semibold text-slate-900">
-                                        {{ $corrective->repair_date ? \Carbon\Carbon::parse($corrective->repair_date)->format('d M Y') : '—' }}
-                                    </td>
-                                    <td class="px-4 py-3 text-slate-700">{{ Str::limit($corrective->problem, 40) ?: '—' }}</td>
-                                    <td class="px-4 py-3 text-slate-700">{{ Str::limit($corrective->solution, 40) ?: '—' }}</td>
-                                    <td class="px-4 py-3 text-slate-700">{{ $corrective->sparepart ?: 'None' }}</td>
-                                    <td class="px-4 py-3 font-medium text-slate-800">{{ $techStr }}</td>
-                                    <td class="px-4 py-3 text-center">
-                                        <a href="{{ route('correctives.show', $corrective) }}" class="font-bold text-amber-700 hover:underline">View Report</a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="py-10 text-center text-slate-400">
-                                        <div class="space-y-1">
-                                            <p class="font-bold text-slate-700 text-sm">No Corrective Maintenance History</p>
-                                            <p class="text-xs text-slate-400">No corrective repair reports recorded for this asset.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <x-table class="max-h-[480px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-2xl">
+    <x-slot name="thead">
+        <tr>
+            <th class="px-4 py-3 text-left">Repair Date</th>
+            <th class="px-4 py-3 text-left">Problem Symptoms</th>
+            <th class="px-4 py-3 text-left">Action Solution</th>
+            <th class="px-4 py-3 text-left">Sparepart Used</th>
+            <th class="px-4 py-3 text-left">Technician</th>
+            <th class="px-4 py-3 text-center">Action</th>
+        </tr>
+    </x-slot>
+
+    @forelse($asset->correctives as $corrective)
+        @php $techStr = is_array($corrective->technician) ? implode(', ', $corrective->technician) : ($corrective->technician ?: '—'); @endphp
+        <tr class="hover:bg-slate-50/80 transition">
+            <td class="px-4 py-3 font-semibold text-slate-900">{{ $corrective->repair_date ? \Carbon\Carbon::parse($corrective->repair_date)->format('d M Y') : '—' }}</td>
+            <td class="px-4 py-3 text-slate-700">{{ Str::limit($corrective->problem, 40) ?: '—' }}</td>
+            <td class="px-4 py-3 text-slate-700">{{ Str::limit($corrective->solution, 40) ?: '—' }}</td>
+            <td class="px-4 py-3 text-slate-700">{{ $corrective->sparepart ?: 'None' }}</td>
+            <td class="px-4 py-3 font-medium text-slate-800">{{ $techStr }}</td>
+            <td class="px-4 py-3 text-center">
+                <a href="{{ route('correctives.show', $corrective) }}" class="font-bold text-amber-700 hover:underline">View Report</a>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="6" class="py-10 text-center text-slate-400">
+                <div class="space-y-1">
+                    <p class="font-bold text-slate-700 text-sm">No Corrective Maintenance History</p>
+                    <p class="text-xs text-slate-400">No corrective repair reports recorded for this asset.</p>
                 </div>
+            </td>
+        </tr>
+    @endforelse
+</x-table>
             </div>
 
             <!-- Tab Content 3: Preventive Maintenance -->

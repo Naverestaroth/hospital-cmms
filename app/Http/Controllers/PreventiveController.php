@@ -21,7 +21,7 @@ class PreventiveController extends Controller
             $sortField = 'created_at';
         }
 
-        $preventives = Preventive::query()
+        $baseQuery = Preventive::query()
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('asset_name', 'like', "%{$search}%")
@@ -29,11 +29,22 @@ class PreventiveController extends Controller
                         ->orWhere('status', 'like', "%{$search}%");
                 });
             })
-            ->orderBy($sortField, $sortDirection)
-            ->paginate(15)
-            ->withQueryString();
+            ->orderBy($sortField, $sortDirection);
 
-        return view('preventives.index', compact('preventives', 'sortField', 'sortDirection'));
+        // Compute room pages for cross-page room navigation
+        $roomPages = [];
+        $allRoomsOrdered = (clone $baseQuery)->pluck('room');
+        foreach ($allRoomsOrdered as $index => $room) {
+            $roomName = !empty(trim((string)$room)) ? trim((string)$room) : 'Unassigned / Ruangan Tidak Ditentukan';
+            if (!isset($roomPages[$roomName])) {
+                $roomPages[$roomName] = (int) floor($index / 15) + 1;
+            }
+        }
+        ksort($roomPages);
+
+        $preventives = $baseQuery->paginate(15)->withQueryString();
+
+        return view('preventives.index', compact('preventives', 'sortField', 'sortDirection', 'roomPages'));
     }
 
     /**

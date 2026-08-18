@@ -1,0 +1,414 @@
+# Hospital CMMS - Project Recovery Guide
+
+Panduan untuk mengatasi masalah project seperti:
+
+- UI tidak berubah walaupun file sudah diedit
+- Project menjalankan folder lama
+- Git branch tidak sinkron
+- Merge conflict
+- Dependency error setelah pindah device
+- Ingin mengambil versi terbaru GitHub dengan kondisi bersih
+
+---
+
+# 1. Backup Project Lama
+
+Sebelum melakukan recovery, jangan langsung hapus project lama.
+
+Buat backup:
+
+```
+hospital-cmms
+```
+
+menjadi:
+
+```
+hospital-cmms-backup
+```
+
+atau compress:
+
+```
+hospital-cmms-backup.zip
+```
+
+Backup yang perlu disimpan:
+
+```
+.env
+database (jika diperlukan)
+source code
+storage upload (jika ada)
+```
+
+---
+
+# 2. Jangan Backup Folder Ini
+
+Folder berikut tidak perlu disimpan:
+
+```
+node_modules/
+vendor/
+.vite/
+storage/framework/views/
+```
+
+Alasan:
+
+| Folder | Fungsi |
+|---|---|
+| node_modules | Dependency frontend |
+| vendor | Dependency Laravel Composer |
+| .vite | Cache Vite |
+| storage/framework/views | Compiled Blade cache |
+
+Folder tersebut akan dibuat ulang.
+
+---
+
+# 3. Rename / Bersihkan Project Lama
+
+Contoh:
+
+```bash
+mv hospital-cmms hospital-cmms-backup
+```
+
+atau hapus setelah yakin:
+
+```bash
+rm -rf hospital-cmms
+```
+
+---
+
+# 4. Clone Ulang dari GitHub
+
+Masuk folder developer:
+
+```bash
+cd ~/developer
+```
+
+Clone branch yang dibutuhkan:
+
+```bash
+git clone -b nama-branch https://github.com/Naverestaroth/hospital-cmms.git hospital-cmms
+```
+
+Contoh:
+
+```bash
+git clone -b feature/asset-qr https://github.com/Naverestaroth/hospital-cmms.git hospital-cmms
+```
+
+---
+
+# 5. Masuk Project Baru
+
+```bash
+cd hospital-cmms
+```
+
+Cek lokasi:
+
+```bash
+pwd
+```
+
+Pastikan folder yang aktif adalah:
+
+```
+/Users/username/developer/hospital-cmms
+```
+
+---
+
+# 6. Verifikasi Git
+
+Cek branch:
+
+```bash
+git branch
+```
+
+Contoh:
+
+```
+* feature/asset-qr
+  main
+```
+
+Cek commit:
+
+```bash
+git log --oneline -5
+```
+
+Pastikan commit sesuai dengan versi yang diinginkan.
+
+---
+
+# 7. Restore Environment
+
+Copy `.env` dari backup:
+
+```bash
+cp ../hospital-cmms-backup/.env .env
+```
+
+Generate key jika diperlukan:
+
+```bash
+php artisan key:generate
+```
+
+---
+
+# 8. Install Dependency
+
+## Laravel
+
+```bash
+composer install
+```
+
+## Frontend
+
+```bash
+npm install
+```
+
+---
+
+# 9. Clear Cache Laravel
+
+Selalu lakukan setelah pindah project:
+
+```bash
+php artisan optimize:clear
+```
+
+Jika Blade masih menggunakan tampilan lama:
+
+```bash
+rm -rf storage/framework/views/*
+```
+
+---
+
+# 10. Jalankan Project
+
+## Laravel Server
+
+### Menggunakan Artisan:
+
+```bash
+php artisan serve
+```
+
+Akses:
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+### Menggunakan Laravel Herd:
+
+Tidak perlu:
+
+```bash
+php artisan serve
+```
+
+Cukup:
+
+```bash
+npm run dev
+```
+
+Akses:
+
+```
+http://hospital-cmms.test
+```
+
+---
+
+# 11. Jalankan Vite
+
+```bash
+npm run dev
+```
+
+Jika Vite bermasalah:
+
+```bash
+rm -rf node_modules
+rm -rf .vite
+npm install
+npm run dev
+```
+
+---
+
+# 12. Troubleshooting UI Tidak Berubah
+
+Jika file sudah berbeda tetapi tampilan masih lama:
+
+## 1. Cek folder aktif
+
+```bash
+pwd
+```
+
+Pastikan bukan folder backup.
+
+---
+
+## 2. Cek server yang berjalan
+
+Matikan server lama:
+
+```bash
+pkill -f artisan
+```
+
+Kemudian jalankan ulang.
+
+---
+
+## 3. Clear Laravel Cache
+
+```bash
+php artisan optimize:clear
+```
+
+---
+
+## 4. Cek Blade yang digunakan
+
+Cek controller:
+
+```bash
+grep -n "return view" app/Http/Controllers/NamaController.php
+```
+
+Pastikan file Blade yang diedit adalah file yang dirender.
+
+---
+
+## 5. Pastikan Tidak Menjalankan Project Lama
+
+Jika project backup dihapus tetapi website masih berjalan:
+
+Kemungkinan server masih menunjuk folder lama.
+
+Restart:
+
+- Artisan server
+- Laravel Herd
+- Browser
+
+---
+
+# 13. Workflow Git Collaboration
+
+Hindari:
+
+```
+Download ZIP
+↓
+Edit
+↓
+Push
+```
+
+Gunakan:
+
+```
+Clone Repository
+        |
+        ↓
+Create Branch
+        |
+        ↓
+Coding
+        |
+        ↓
+Commit
+        |
+        ↓
+Push Branch
+        |
+        ↓
+Merge ke Main
+```
+
+---
+
+## Membuat Branch Baru
+
+```bash
+git checkout -b feature/nama-fitur
+```
+
+---
+
+## Commit
+
+```bash
+git add .
+git commit -m "Deskripsi perubahan"
+```
+
+---
+
+## Push Branch
+
+```bash
+git push origin feature/nama-fitur
+```
+
+---
+
+# 14. Recovery Cepat (Shortcut)
+
+Jika project sudah kacau:
+
+```bash
+mv hospital-cmms hospital-cmms-backup
+
+git clone -b nama-branch https://github.com/Naverestaroth/hospital-cmms.git hospital-cmms
+
+cd hospital-cmms
+
+cp ../hospital-cmms-backup/.env .env
+
+composer install
+
+npm install
+
+php artisan optimize:clear
+
+npm run dev
+```
+
+---
+
+# Catatan
+
+Jika terjadi perbedaan UI antar device, cek dengan urutan:
+
+1. Pastikan folder project benar
+2. Pastikan branch benar
+3. Pastikan server menjalankan folder tersebut
+4. Clear Laravel cache
+5. Rebuild Vite
+6. Fresh clone jika masih bermasalah
+
+Fresh clone sering lebih cepat daripada memperbaiki project yang sudah tercampur.

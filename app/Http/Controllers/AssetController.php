@@ -25,7 +25,7 @@ class AssetController extends Controller
             $sortField = 'created_at';
         }
 
-        $assets = Asset::query()
+        $baseQuery = Asset::query()
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('asset_name', 'like', "%{$search}%")
@@ -53,11 +53,22 @@ class AssetController extends Controller
                     $query->where('status', $status);
                 }
             })
-            ->orderBy($sortField, $sortDirection)
-            ->paginate(15)
-            ->withQueryString();
+            ->orderBy($sortField, $sortDirection);
 
-        return view('assets.index', compact('assets', 'sortField', 'sortDirection'));
+        // Compute room pages for cross-page navigation
+        $roomPages = [];
+        $allRoomsOrdered = (clone $baseQuery)->pluck('room');
+        foreach ($allRoomsOrdered as $index => $room) {
+            $roomName = !empty(trim((string)$room)) ? trim((string)$room) : 'Unassigned / Ruangan Tidak Ditentukan';
+            if (!isset($roomPages[$roomName])) {
+                $roomPages[$roomName] = (int) floor($index / 15) + 1;
+            }
+        }
+        ksort($roomPages);
+
+        $assets = $baseQuery->paginate(15)->withQueryString();
+
+        return view('assets.index', compact('assets', 'sortField', 'sortDirection', 'roomPages'));
     }
 
     public function create()
