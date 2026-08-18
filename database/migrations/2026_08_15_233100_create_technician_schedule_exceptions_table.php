@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
 
-            $table->index(['technician_id', 'start_at', 'end_at']);
+            $table->index(['technician_id', 'start_at', 'end_at'], 'tech_exc_id_start_end_idx');
         });
     }
 
