@@ -1,13 +1,7 @@
 @php
-$technicians = [
-    'Susanto',
-    'Hutami',
-    'Zaky',
-    'Lisa',
-    'Syarif',
-    'Syiefa',
-    'Ghazali',
-];
+$technicians = (isset($technicians) && count($technicians) > 0)
+    ? $technicians
+    : \App\Models\Technician::onDuty()->orderBy('name')->pluck('name');
 
 $checklists = [
     'Pembersihan / Cleaning',
@@ -39,6 +33,9 @@ $conditions = [
 
         <form action="{{ route('preventives.store') }}" method="POST" id="preventive-form" class="space-y-6">
             @csrf
+
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
             <script>
                 window.PREVENTIVE_ASSET_API = {
@@ -78,9 +75,11 @@ $conditions = [
                     </label>
                     <input
                         type="date"
+                        id="preventive_schedule_date"
                         name="schedule_date"
-                        value="{{ old('schedule_date') }}"
-                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
+                        value="{{ old('schedule_date', date('Y-m-d')) }}"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none date-picker-dmy"
+                        placeholder="DD/MM/YYYY">
                 </div>
 
                 {{-- 3. Nama Alat --}}
@@ -341,8 +340,20 @@ $conditions = [
                             await loadAssetDetail(assetSelect.value);
                         });
                     }
+
+                    if (typeof flatpickr !== 'undefined') {
+                        flatpickr("#preventive_schedule_date", {
+                            dateFormat: "Y-m-d",
+                            altInput: true,
+                            altFormat: "d/m/Y",
+                            allowInput: true
+                        });
+                    }
                 });
             </script>
+
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         </form>
     </div>
 </x-app-layout>

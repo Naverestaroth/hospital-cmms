@@ -68,7 +68,7 @@
 
             {{-- COLUMN 1 (3.8 Cols) --}}
             <div class="lg:col-span-4 bento-col flex flex-col gap-5">
-                
+
                 {{-- CARD 1: Equipment Status Component (Operations-First) --}}
                 <div class="feature-card glass rounded-[24px] p-5 flex flex-col gap-4" id="card1-equipment-status">
                     <a href="{{ route('assets.index', ['status' => 'Dalam Perbaikan']) }}"
@@ -232,7 +232,7 @@
                             <div>
                                 <div class="rating-label text-[10.5px] font-bold text-[#5B7480] uppercase tracking-wider">TICKET STATUS OVERVIEW</div>
                                 <div class="rating-value mono text-xl font-bold text-[#0B1E26] mt-0.5">
-                                    <span id="card4-total-val">{{ number_format($initialAnalyticsData['total_requests']) }}</span> 
+                                    <span id="card4-total-val">{{ number_format($initialAnalyticsData['total_requests']) }}</span>
                                     <span class="rating-max text-xs text-[#8CA0A8] font-normal">total requests</span>
                                 </div>
                             </div>
@@ -275,7 +275,7 @@
             {{-- COLUMN 3 (4.0 Cols) --}}
             <div class="lg:col-span-4 bento-col flex flex-col gap-5">
 
-                {{-- CARD 5: Fleet Vitality Component (Dynamic Metrics & Health Score Ring) --}}
+                {{-- CARD 5: Total Usable Assets Component (Donut Chart & Legend) --}}
                 <div class="feature-card glass rounded-[24px] p-5 flex flex-col items-center text-center gap-4">
                     <div class="stat-pill-row flex gap-2 w-full">
                         {{-- 1. Total Assets --}}
@@ -306,61 +306,108 @@
                         </div>
                     </div>
 
-                    {{-- Concentric Rings with Dynamic Overall Health Score SVG Progress Ring --}}
-                    <div class="cross-rings relative w-44 h-44 flex flex-col items-center justify-center my-1">
-                        <!-- Outer static background rings -->
-                        <div class="ring r3 absolute rounded-full border border-[#00B8A9]/10 w-44 h-44 pointer-events-none"></div>
-                        <div class="ring r2 absolute rounded-full border border-[#00B8A9]/15 w-36 h-36 pointer-events-none"></div>
-                        
-                        <!-- Dynamic SVG Progress Circle Ring -->
-                        <svg class="w-40 h-40 transform -rotate-90 pointer-events-none absolute" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="42" stroke="#E2EBEE" stroke-width="5.5" fill="transparent" />
-                            @php
-                                $circumference = 263.89; // 2 * pi * 42
-                                $healthScore = max(0, min(100, $equipmentAvailabilityPct));
-                                $dashOffset = $circumference - ($circumference * $healthScore) / 100;
-                                $ringColor = $healthScore >= 80 ? '#2E9E6D' : ($healthScore >= 50 ? '#DB9A34' : '#E2574C');
-                            @endphp
-                            <circle cx="50" cy="50" r="42" 
-                                    stroke="{{ $ringColor }}" 
-                                    stroke-width="6.5" 
-                                    stroke-linecap="round" 
-                                    fill="transparent" 
-                                    stroke-dasharray="{{ $circumference }}" 
-                                    style="stroke-dashoffset: {{ $dashOffset }}; transition: stroke-dashoffset 1s ease-in-out;" />
-                        </svg>
+                    {{-- Donut Chart: Usable / Maintenance / Down --}}
+                    <div class="w-full flex justify-center my-1">
+                        <div id="usable-assets-donut-chart" class="w-full max-w-[210px]"></div>
+                    </div>
 
-                        <!-- Center Core showing Overall Health Score Percentage -->
-                        <div class="cross-core relative w-20 h-20 rounded-full bg-white/90 backdrop-blur flex flex-col items-center justify-center shadow-lg border border-white text-center z-10 p-1">
-                            <span class="mono text-lg font-extrabold text-[#0B1E26] tracking-tight leading-none">{{ round($equipmentAvailabilityPct, 1) }}%</span>
-                            <span class="text-[9px] font-bold tracking-wider text-[#5B7480] uppercase mt-1">Health Score</span>
+                    {{-- Legend Pills --}}
+                    <div class="flex items-center justify-center gap-2 text-[11px] font-semibold text-[#0B1E26] flex-wrap">
+                        <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-2.5 py-1 rounded-full">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span>Usable: <b class="mono">{{ number_format($countUsable) }}</b></span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200/80 px-2.5 py-1 rounded-full">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            <span>Maintenance: <b class="mono">{{ number_format($countMaintenance) }}</b></span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-red-50 text-red-800 border border-red-200/80 px-2.5 py-1 rounded-full">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                            <span>Down: <b class="mono">{{ number_format($countDown) }}</b></span>
                         </div>
                     </div>
 
                     <div>
-                        <div class="feature-heading disp text-lg font-bold text-[#0B1E26]">Fleet Vitality</div>
-                        <div class="feature-desc text-xs text-[#5B7480] mt-0.5">Real-time status overview of technicians, tickets, and active hospital equipment.</div>
+                        <div class="feature-heading disp text-lg font-bold text-[#0B1E26]">Total Usable Assets</div>
+                        <div class="feature-desc text-xs text-[#5B7480] mt-0.5">Real-time status breakdown of hospital equipment operational availability.</div>
                     </div>
                 </div>
 
-                {{-- CARD 6: Fleet Insights Component (Asset Status Overview) --}}
-                <div class="feature-card glass rounded-[24px] p-5 flex flex-col gap-4">
-                    <div class="inset-box p-3 rounded-2xl space-y-3">
-                        <div class="insight-title font-bold text-xs text-[#0B1E26]">Asset Status Distribution</div>
-                        <div class="flex justify-center">
-                            <div id="asset-status-chart" class="w-full max-w-[220px]"></div>
+                {{-- CARD 6: Document Center List Component --}}
+                <div class="feature-card glass rounded-[24px] p-5 flex flex-col gap-4 justify-between">
+                    <div class="inset-box p-3.5 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between border-b border-[#E2EBEE]/80 pb-2">
+                            <div class="insight-title font-bold text-xs text-[#0B1E26] flex items-center gap-1.5">
+                                <svg viewBox="0 0 24 24" class="w-4 h-4 text-[#0A4A57]" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                                <span>Document List</span>
+                            </div>
+                            <a href="{{ route('documents.index') }}" class="text-[11px] font-bold text-[#0E5E6F] hover:underline flex items-center gap-1">
+                                View All
+                                <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </a>
                         </div>
+
+                        @if(isset($recentDocuments) && $recentDocuments->count() > 0)
+                            <div class="space-y-2">
+                                @foreach($recentDocuments as $doc)
+                                    <div class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-white/80 border border-white/90 shadow-sm hover:bg-white transition">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="text-xs font-bold text-[#0B1E26] truncate" title="{{ $doc->title }}">
+                                                    {{ $doc->title }}
+                                                </h4>
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700 border border-slate-200 flex-shrink-0">
+                                                    {{ $doc->document_type }}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center gap-1.5 mt-1 text-[10px] text-[#5B7480]">
+                                                <span class="mono">{{ $doc->document_code }}</span>
+                                                <span>•</span>
+                                                <span>Updated {{ $doc->updated_at ? $doc->updated_at->diffForHumans() : '-' }}</span>
+                                            </div>
+                                        </div>
+
+                                        <a href="{{ route('documents.show', $doc) }}"
+                                           class="px-2.5 py-1 rounded-lg bg-[#0A4A57] text-white text-[10px] font-bold hover:bg-[#073640] transition flex-shrink-0 flex items-center gap-1"
+                                           title="View Document Details">
+                                            <span>Open</span>
+                                            <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            {{-- Empty State --}}
+                            <div class="py-5 text-center text-[#5B7480] space-y-1.5">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                                    <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                    </svg>
+                                </div>
+                                <p class="text-xs font-bold text-[#0B1E26]">No documents available</p>
+                                <p class="text-[10px] text-[#5B7480]">Upload SOPs or equipment manuals in Document Center.</p>
+                                <a href="{{ route('documents.create') }}" class="inline-block mt-1 px-3 py-1 rounded-xl bg-[#0A4A57] text-white text-[10px] font-bold hover:bg-[#073640] transition">
+                                    + Add Document
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     <div>
-                        <div class="feature-heading disp text-lg font-bold text-[#0B1E26]">Fleet Insights</div>
-                        <div class="feature-desc text-xs text-[#5B7480] mt-0.5">Add notes on how new SOPs and technician training improve key repair metrics.</div>
+                        <div class="feature-heading disp text-lg font-bold text-[#0B1E26]">Document Center</div>
+                        <div class="feature-desc text-xs text-[#5B7480] mt-0.5">Quick access to official hospital SOPs, equipment manuals, and compliance documentation.</div>
                     </div>
                 </div>
 
                 {{-- CARD 7: Quick Actions Component (Proportional Background & Unclipped Radial Wheel) --}}
                 <div class="feature-card glass rounded-[24px] p-5 flex flex-col items-center text-center gap-3 relative overflow-visible h-full justify-between" x-data="{ isOpen: true }">
-                    
+
                     <!-- Header Section -->
                     <div class="w-full border-b border-[#E2EBEE]/70 pb-2.5 flex items-center justify-between z-10">
                         <div class="text-left">
@@ -374,17 +421,17 @@
 
                     <!-- Fixed Size Radial Wheel Cluster Area (Proportional Background) -->
                     <div class="radial-menu-cluster relative w-full h-44 flex items-center justify-center overflow-visible my-auto">
-                        
+
                         <!-- Outer Decorative Guide Rings -->
                         <div class="orbit-ring absolute rounded-full border border-dashed border-[#0B1E26]/20 w-44 h-44 pointer-events-none transition-transform duration-700"
                              :class="{ 'scale-100 opacity-100 rotate-45': isOpen, 'scale-75 opacity-40': !isOpen }"></div>
                         <div class="orbit-ring absolute rounded-full border border-dashed border-[#00B8A9]/25 w-32 h-32 pointer-events-none transition-transform duration-700"
                              :class="{ 'scale-100 opacity-100 -rotate-45': isOpen, 'scale-75 opacity-40': !isOpen }"></div>
 
-                        <!-- 1. Radial Action: Tickets (Top Left) -->
+                        <!-- 1. Radial Action: Tickets (Top Center) -->
                         <a href="{{ route('tickets.index') }}"
                            class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
-                           :style="isOpen ? 'transform: translate(-64px, -46px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           :style="isOpen ? 'transform: translate(0, -78px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
                            title="Tickets Management">
                             <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
                             <span>Tickets</span>
@@ -393,16 +440,16 @@
                         <!-- 2. Radial Action: Technicians (Top Right) -->
                         <a href="{{ route('technicians.index') }}"
                            class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
-                           :style="isOpen ? 'transform: translate(64px, -46px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           :style="isOpen ? 'transform: translate(70px, -40px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
                            title="Technicians Directory">
                             <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
                             <span>Technicians</span>
                         </a>
 
-                        <!-- 3. Radial Action: Assets (Middle Right) -->
+                        <!-- 3. Radial Action: Assets (Bottom Right) -->
                         <a href="{{ route('assets.index') }}"
                            class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
-                           :style="isOpen ? 'transform: translate(78px, 10px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           :style="isOpen ? 'transform: translate(70px, 40px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
                            title="Asset Inventory">
                             <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             <span>Assets</span>
@@ -411,16 +458,25 @@
                         <!-- 4. Radial Action: Reports (Bottom Center) -->
                         <a href="{{ route('reports') }}"
                            class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3.5 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
-                           :style="isOpen ? 'transform: translate(0, 60px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           :style="isOpen ? 'transform: translate(0, 78px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
                            title="Reports & Analytics">
                             <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
                             <span>Reports</span>
                         </a>
 
-                        <!-- 5. Radial Action: Preventive (Middle Left) -->
+                        <!-- 5. Radial Action: Documents (Bottom Left) -->
+                        <a href="{{ route('documents.index') }}"
+                           class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
+                           :style="isOpen ? 'transform: translate(-70px, 40px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           title="Document Center">
+                            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+                            <span>Documents</span>
+                        </a>
+
+                        <!-- 6. Radial Action: Preventive (Top Left) -->
                         <a href="{{ route('preventives.index') }}"
                            class="radial-action-item absolute z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur border border-white rounded-full px-3 py-1 text-xs font-bold text-[#0B1E26] shadow-md hover:scale-110 hover:bg-white hover:text-[#00B8A9] transition-all duration-500 whitespace-nowrap cursor-pointer"
-                           :style="isOpen ? 'transform: translate(-78px, 10px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
+                           :style="isOpen ? 'transform: translate(-70px, -40px) scale(1); opacity: 1;' : 'transform: translate(0, 0) scale(0.6); opacity: 0.3; pointer-events: none;'"
                            title="Preventive Schedules">
                             <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-[#0A4A57] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
                             <span>Preventive</span>
@@ -455,24 +511,35 @@
                 <div class="panel-head flex items-center justify-between border-b border-[#E2EBEE]/70 pb-3">
                     <div>
                         <h2 class="disp text-base font-bold text-[#0B1E26]">Technician Workload</h2>
-                        <p class="text-xs text-[#5B7480]">Active tickets per technician.</p>
+                        <p class="text-xs text-[#5B7480]">Active workload across Tickets, PM & Corrective.</p>
                     </div>
                     <span class="mono text-xs font-semibold text-[#8CA0A8] bg-white/60 px-2.5 py-0.5 rounded-full border border-white/80">{{ $techniciansWorkload->count() }} tech(s)</span>
                 </div>
 
                 <div class="space-y-3 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
                     @forelse($techniciansWorkload as $tech)
-                        @php $pct = round(($tech->tickets_count / $maxActiveTickets) * 100); @endphp
-                        <div class="inset-box p-3 rounded-xl space-y-1.5">
+                        @php
+                            $workload = $tech->total_workload ?? 0;
+                            $pct = round(($workload / $maxActiveTickets) * 100);
+                            $isOnDuty = strcasecmp($tech->duty_status, 'On Duty') === 0;
+                        @endphp
+                        {{-- Background/latar widget mengikuti perubahan workload/data, bukan status duty --}}
+                        <div class="inset-box p-3 rounded-xl space-y-1.5 transition-all duration-300 {{ $workload > 0 ? 'bg-gradient-to-r from-white via-[#F0F9FA] to-[#E6F4F6] border-[#BCE3E8]/70 shadow-sm' : 'bg-slate-50/50 border-slate-200/60' }}">
                             <div class="flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2 font-semibold text-[#0B1E26]">
-                                    <span class="w-2 h-2 rounded-full bg-[#00B8A9]"></span>
-                                    {{ $tech->name }}
+                                {{-- Warna nama technician: hitam = On Duty, abu-abu = Off Duty --}}
+                                <div class="flex items-center gap-2 {{ $isOnDuty ? 'text-[#0B1E26] font-bold' : 'text-slate-400 font-medium' }}">
+                                    <span class="w-2 h-2 rounded-full {{ $isOnDuty ? 'bg-emerald-500' : 'bg-slate-300' }}"></span>
+                                    <span>{{ $tech->name }}</span>
+                                    <span class="text-[10px] px-1.5 py-0.2 rounded font-normal {{ $isOnDuty ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
+                                        {{ $isOnDuty ? 'On Duty' : 'Off Duty' }}
+                                    </span>
                                 </div>
-                                <span class="mono font-bold text-[#0A4A57]">{{ $tech->tickets_count }} Active</span>
+                                <span class="mono font-bold {{ $workload > 0 ? 'text-[#0A4A57]' : 'text-slate-400' }}">
+                                    {{ $workload }} Tasks
+                                </span>
                             </div>
-                            <div class="relative h-2 w-full rounded-full bg-white/70 overflow-hidden border border-white">
-                                <div class="h-full rounded-full bg-gradient-to-r from-[#0E5E6F] to-[#00B8A9]" style="width: {{ max(5, $pct) }}%;"></div>
+                            <div class="relative h-2 w-full rounded-full bg-white/80 overflow-hidden border border-slate-200/80">
+                                <div class="h-full rounded-full transition-all duration-500 {{ $workload > 0 ? 'bg-gradient-to-r from-[#0E5E6F] to-[#00B8A9]' : 'bg-slate-200' }}" style="width: {{ $workload > 0 ? max(8, $pct) : 0 }}%;"></div>
                             </div>
                         </div>
                     @empty
@@ -702,6 +769,62 @@
                 }
                 requestAnimationFrame(tick);
             });
+        });
+    </script>
+
+    {{-- Total Usable Assets Donut Chart Script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const seriesData = [{{ $countUsable }}, {{ $countMaintenance }}, {{ $countDown }}];
+            const labelsData = ['Usable', 'Maintenance', 'Down'];
+            const colorsData = ['#22C55E', '#F59E0B', '#EF4444'];
+            const totalCount = {{ $totalAssetCount }};
+
+            const options = {
+                series: seriesData,
+                labels: labelsData,
+                colors: colorsData,
+                chart: {
+                    type: 'donut',
+                    height: 200,
+                    fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, sans-serif',
+                    animations: { enabled: true, speed: 800 },
+                    events: {
+                        dataPointSelection: function(event, chartContext, config) {
+                            const index = config.dataPointIndex;
+                            const statusFilters = ['berfungsi', 'dalam perbaikan', 'rusak'];
+                            if (statusFilters[index]) {
+                                window.location.href = "{{ route('assets.index') }}?status=" + encodeURIComponent(statusFilters[index]);
+                            }
+                        }
+                    }
+                },
+                stroke: { width: 3, colors: ['#ffffff'] },
+                dataLabels: { enabled: false },
+                legend: { show: false },
+                tooltip: {
+                    enabled: true,
+                    y: { formatter: function(val) { return val + " asset(s)"; } }
+                },
+                plotOptions: {
+                    pie: {
+                        expandOnClick: true,
+                        donut: {
+                            size: '72%',
+                            background: 'transparent',
+                            labels: {
+                                show: true,
+                                name: { show: true, fontSize: '10px', fontWeight: 600, color: '#5B7480', offsetY: -6 },
+                                value: { show: true, fontSize: '20px', fontWeight: 700, color: '#0B1E26', offsetY: 4, formatter: function () { return totalCount.toLocaleString(); } },
+                                total: { show: true, showAlways: true, label: 'Total Assets', fontSize: '10px', fontWeight: 600, color: '#8CA0A8', formatter: function () { return totalCount.toLocaleString(); } }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const usableChart = new ApexCharts(document.querySelector("#usable-assets-donut-chart"), options);
+            usableChart.render();
         });
     </script>
 

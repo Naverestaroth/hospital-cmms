@@ -25,13 +25,31 @@ class AssetController extends Controller
             $sortField = 'created_at';
         }
 
+        $rooms = Asset::query()
+            ->whereNotNull('room')
+            ->where('room', '!=', '')
+            ->distinct()
+            ->orderBy('room')
+            ->pluck('room')
+            ->map(fn($r) => trim($r))
+            ->unique()
+            ->values();
+
+        $selectedRoom = $request->input('room');
+
+        $viewMode = $request->input('view', 'room');
+
         $baseQuery = Asset::query()
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('asset_name', 'like', "%{$search}%")
                         ->orWhere('asset_code', 'like', "%{$search}%")
-                        ->orWhere('serial_number', 'like', "%{$search}%");
+                        ->orWhere('serial_number', 'like', "%{$search}%")
+                        ->orWhere('room', 'like', "%{$search}%");
                 });
+            })
+            ->when($selectedRoom, function ($query, $room) {
+                $query->where('room', $room);
             })
             ->when($request->status, function ($query, $status) {
                 if ($status === 'rusak') {
@@ -52,8 +70,13 @@ class AssetController extends Controller
                 } else {
                     $query->where('status', $status);
                 }
-            })
-            ->orderBy($sortField, $sortDirection);
+            });
+
+        if ($viewMode === 'room' || $request->input('sort') === 'room') {
+            $baseQuery->orderBy('room', 'asc')->orderBy('asset_name', 'asc');
+        } else {
+            $baseQuery->orderBy($sortField, $sortDirection);
+        }
 
         // Compute room pages for cross-page navigation
         $roomPages = [];
@@ -68,7 +91,7 @@ class AssetController extends Controller
 
         $assets = $baseQuery->paginate(15)->withQueryString();
 
-        return view('assets.index', compact('assets', 'sortField', 'sortDirection', 'roomPages'));
+        return view('assets.index', compact('assets', 'rooms', 'selectedRoom', 'sortField', 'sortDirection', 'roomPages'));
     }
 
     public function create()

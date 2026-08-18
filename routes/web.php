@@ -142,23 +142,30 @@ Route::middleware('auth')->group(function () {
         if (in_array('tickets', $targets)) {
             if (\Illuminate\Support\Facades\Schema::hasTable('ticket_activities')) \App\Models\TicketActivity::truncate();
             if (\Illuminate\Support\Facades\Schema::hasTable('ticket_technician')) \Illuminate\Support\Facades\DB::table('ticket_technician')->delete();
+            if (\Illuminate\Support\Facades\Schema::hasTable('ticket_work_logs')) \Illuminate\Support\Facades\DB::table('ticket_work_logs')->delete();
             \App\Models\Ticket::truncate();
-            $cleared[] = 'Tickets';
+            $cleared[] = 'Tickets & History';
         }
 
         if (in_array('corrective', $targets)) {
             \App\Models\Corrective::truncate();
-            $cleared[] = 'Corrective';
+            $cleared[] = 'Corrective Maintenance';
         }
 
         if (in_array('preventive', $targets)) {
             \App\Models\Preventive::truncate();
-            $cleared[] = 'Preventive';
+            $cleared[] = 'Preventive Maintenance';
         }
 
         if (in_array('assets', $targets)) {
             \App\Models\Asset::truncate();
-            $cleared[] = 'Assets';
+            $cleared[] = 'Assets / Equipment';
+        }
+
+        if (in_array('schedules', $targets) || in_array('technician_schedules', $targets)) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('technician_schedules')) \App\Models\TechnicianSchedule::truncate();
+            if (\Illuminate\Support\Facades\Schema::hasTable('technician_schedule_exceptions')) \App\Models\TechnicianScheduleException::truncate();
+            $cleared[] = 'Jadwal & History Teknisi';
         }
 
         if (in_array('spareparts', $targets)) {
@@ -178,16 +185,18 @@ Route::middleware('auth')->group(function () {
             if (\Illuminate\Support\Facades\Schema::hasTable('asset_movements')) {
                 \Illuminate\Support\Facades\DB::table('asset_movements')->delete();
             }
-            \App\Models\Ticket::query()->update([
-                'sent_to_workshop_date' => null,
-                'sent_by' => null,
-                'received_by_workshop' => null,
-                'returned_date' => null,
-                'returned_by' => null,
-                'received_by_user' => null,
-                'equipment_completeness' => null,
-            ]);
-            $cleared[] = 'Equipment Movements';
+            if (\Illuminate\Support\Facades\Schema::hasTable('tickets')) {
+                \App\Models\Ticket::query()->update([
+                    'sent_to_workshop_date' => null,
+                    'sent_by' => null,
+                    'received_by_workshop' => null,
+                    'returned_date' => null,
+                    'returned_by' => null,
+                    'received_by_user' => null,
+                    'equipment_completeness' => null,
+                ]);
+            }
+            $cleared[] = 'Equipment Movements History';
         }
 
         if (in_array('documents', $targets) || in_array('document_center', $targets)) {
@@ -210,74 +219,24 @@ Route::middleware('auth')->group(function () {
     Route::get('/history', [HistoryController::class, 'index'])
         ->name('history');
 
-    Route::view('/technicians', 'technicians.index')
+    Route::get('/technicians', [\App\Http\Controllers\TechnicianController::class, 'index'])
         ->name('technicians.index');
-
-    Route::get('/technicians/{id}', function ($id) {
-        $technicians = [
-            1 => [
-                'name' => 'Andi Pratama',
-                'email' => 'andi.pratama@example.com',
-                'phone' => '+62 812-3456-7890',
-                'buildings' => [
-                    ['name' => 'Gedung A', 'description' => 'Main hospital wing'],
-                    ['name' => 'Gedung C', 'description' => 'Equipment storage'],
-                ],
-                'summary' => [
-                    'active_tasks' => 5,
-                    'completed_corrective' => 8,
-                    'completed_preventive' => 4,
-                    'total_maintenance' => 17,
-                ],
-                'active_corrective' => [
-                    ['ticket' => 'C-021', 'building' => 'Gedung A', 'due' => '2026-08-05'],
-                    ['ticket' => 'C-017', 'building' => 'Gedung C', 'due' => '2026-08-10'],
-                ],
-                'active_preventive' => [
-                    ['schedule' => 'P-102', 'building' => 'Gedung A', 'due' => '2026-08-03'],
-                    ['schedule' => 'P-109', 'building' => 'Gedung C', 'due' => '2026-08-11'],
-                ],
-                'history' => [
-                    ['date' => '2026-06-20', 'activity' => 'AC unit replacement'],
-                    ['date' => '2026-05-15', 'activity' => 'Pump repair'],
-                    ['date' => '2026-04-08', 'activity' => 'Generator inspection'],
-                ],
-            ],
-            2 => [
-                'name' => 'Budi Santoso',
-                'email' => 'budi.santoso@example.com',
-                'phone' => '+62 812-9876-5432',
-                'buildings' => [
-                    ['name' => 'Gedung B', 'description' => 'Main maintenance block'],
-                    ['name' => 'Gedung D', 'description' => 'Storage and repairs'],
-                ],
-                'summary' => [
-                    'active_tasks' => 3,
-                    'completed_corrective' => 12,
-                    'completed_preventive' => 6,
-                    'total_maintenance' => 21,
-                ],
-                'active_corrective' => [
-                    ['ticket' => 'C-043', 'building' => 'Gedung B', 'due' => '2026-08-07'],
-                    ['ticket' => 'C-038', 'building' => 'Gedung D', 'due' => '2026-08-12'],
-                ],
-                'active_preventive' => [
-                    ['schedule' => 'P-118', 'building' => 'Gedung B', 'due' => '2026-08-04'],
-                    ['schedule' => 'P-121', 'building' => 'Gedung D', 'due' => '2026-08-14'],
-                ],
-                'history' => [
-                    ['date' => '2026-06-12', 'activity' => 'Boiler inspection'],
-                    ['date' => '2026-05-06', 'activity' => 'Valve replacement'],
-                    ['date' => '2026-04-22', 'activity' => 'Lighting check'],
-                ],
-            ],
-        ];
-
-        $technician = $technicians[$id] ?? $technicians[1];
-
-        return view('technicians.show', ['technician' => $technician]);
-    })
+    Route::get('/technicians/duty-statuses', [\App\Http\Controllers\TechnicianController::class, 'dutyStatuses'])
+        ->name('technicians.duty-statuses');
+    Route::post('/technicians', [\App\Http\Controllers\TechnicianController::class, 'store'])
+        ->name('technicians.store');
+    Route::post('/technicians/import-schedule', [\App\Http\Controllers\TechnicianController::class, 'importSchedule'])
+        ->name('technicians.import-schedule');
+    Route::post('/technicians/exceptions', [\App\Http\Controllers\TechnicianController::class, 'storeException'])
+        ->name('technicians.exceptions.store');
+    Route::delete('/technicians/exceptions/{id}', [\App\Http\Controllers\TechnicianController::class, 'destroyException'])
+        ->name('technicians.exceptions.destroy');
+    Route::post('/technicians/{technician}/override', [\App\Http\Controllers\TechnicianController::class, 'toggleOverride'])
+        ->name('technicians.override');
+    Route::get('/technicians/{id}', [\App\Http\Controllers\TechnicianController::class, 'show'])
         ->name('technicians.show');
+    Route::put('/technicians/{technician}', [\App\Http\Controllers\TechnicianController::class, 'update'])
+        ->name('technicians.update');
 
     // Preventive - Fetch data (room/asset) for report refactor
     Route::get('/preventive-assets/by-room', [\App\Http\Controllers\PreventiveAssetController::class, 'assetsByRoom'])

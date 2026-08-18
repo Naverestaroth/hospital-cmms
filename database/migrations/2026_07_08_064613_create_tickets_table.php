@@ -32,10 +32,23 @@ return new class extends Migration
             ]);
 
             $table->enum('status', [
+                'Waiting Approval',
                 'Open',
+                'Approved',
+                'Assigned',
+                'Accepted',
                 'In Progress',
-                'Completed'
-            ])->default('Open');
+                'Waiting Sparepart',
+                'Waiting Vendor',
+                'Waiting User',
+                'Repair Completed',
+                'Waiting Corrective Report',
+                'Corrective Report Completed',
+                'Closed',
+                'Rejected',
+                'Cancelled',
+                'Completed',
+            ])->default('Waiting Approval');
 
             $table->timestamps();
 

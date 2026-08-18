@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('preventives', function (Blueprint $table) {
-            $table->date('procurement_year')->nullable()->after('serial_number');
-        });
+        if (!Schema::hasColumn('preventives', 'procurement_year')) {
+            Schema::table('preventives', function (Blueprint $table) {
+                $table->date('procurement_year')->nullable()->after('serial_number');
+            });
+        }
     }
 
     /**

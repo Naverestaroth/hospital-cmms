@@ -185,8 +185,11 @@
                         </label>
 
                         <input
-                            type="date"
+                            type="text"
+                            id="issue_date"
                             name="issue_date"
+                            value="{{ old('issue_date') }}"
+                            placeholder="DD/MM/YYYY"
                             class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
 
                     </div>
@@ -200,8 +203,11 @@
                         </label>
 
                         <input
-                            type="date"
+                            type="text"
+                            id="expiry_date"
                             name="expiry_date"
+                            value="{{ old('expiry_date') }}"
+                            placeholder="DD/MM/YYYY"
                             class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-emerald-500 focus:outline-none">
 
                     </div>
@@ -292,6 +298,27 @@
                 </button>
 
             </div>
+
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    if (typeof flatpickr !== 'undefined') {
+                        flatpickr("#issue_date", {
+                            dateFormat: "Y-m-d",
+                            altInput: true,
+                            altFormat: "d/m/Y",
+                            allowInput: true
+                        });
+                        flatpickr("#expiry_date", {
+                            dateFormat: "Y-m-d",
+                            altInput: true,
+                            altFormat: "d/m/Y",
+                            allowInput: true
+                        });
+                    }
+                });
+            </script>
 
         </form>
 

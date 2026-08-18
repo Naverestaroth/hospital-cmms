@@ -10,6 +10,7 @@ use App\Models\Sparepart;
 use App\Models\Vendor;
 use App\Models\Technician;
 use App\Models\TicketActivity;
+use App\Models\Document;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -152,15 +153,47 @@ class DashboardController extends Controller
             ];
         }
 
-        // 5. Technician Active Workload
+        // 5. Technician Active Workload (combining Ticket, Preventive, and Corrective)
+        $allPreventives = Preventive::whereNotNull('technician')->get();
+        $allCorrectives = Corrective::whereNotNull('technician')->get();
+
         $techniciansWorkload = Technician::query()
             ->withCount(['tickets' => function ($q) {
                 $q->whereNotIn('status', ['Closed', 'Rejected', 'Cancelled']);
             }])
-            ->orderBy('tickets_count', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($tech) use ($allPreventives, $allCorrectives) {
+                $ticketCount = (int) $tech->tickets_count;
 
-        $maxActiveTickets = max(1, $techniciansWorkload->max('tickets_count') ?? 1);
+                $preventiveCount = $allPreventives->filter(function ($p) use ($tech) {
+                    return strcasecmp(trim((string) $p->technician), trim((string) $tech->name)) === 0;
+                })->count();
+
+                $correctiveCount = $allCorrectives->filter(function ($c) use ($tech) {
+                    if (is_array($c->technician)) {
+                        return in_array($tech->name, $c->technician);
+                    }
+                    $raw = (string) $c->technician;
+                    if (str_starts_with($raw, '[')) {
+                        $arr = json_decode($raw, true) ?: [];
+                        return in_array($tech->name, $arr);
+                    }
+                    return strcasecmp(trim($raw), trim((string) $tech->name)) === 0;
+                })->count();
+
+                $totalWorkload = $ticketCount + $preventiveCount + $correctiveCount;
+
+                $tech->ticket_workload = $ticketCount;
+                $tech->preventive_workload = $preventiveCount;
+                $tech->corrective_workload = $correctiveCount;
+                $tech->total_workload = $totalWorkload;
+
+                return $tech;
+            })
+            ->sortByDesc('total_workload')
+            ->values();
+
+        $maxActiveTickets = max(1, $techniciansWorkload->max('total_workload') ?? 1);
 
         $totalTechs = Technician::count();
         $busyTechsCount = Technician::whereHas('tickets', function ($q) {
@@ -255,6 +288,10 @@ class DashboardController extends Controller
             $statusDetail = $countDalamPerbaikan . ' in repair · ' . $countTidakBerfungsi . ' non-operational · Monitor closely';
         }
 
+        // 9. Document Center Recent Documents
+        $recentDocuments = Document::with('asset')->latest()->take(4)->get();
+        $documentCount = Document::count();
+
         return view('dashboard', [
             'assetCount' => $totalAssetCount,
             'totalAssetCount' => $totalAssetCount,
@@ -275,6 +312,9 @@ class DashboardController extends Controller
             'countProsesPenghapusan' => $countProsesPenghapusan,
             'countDisposal' => $countDisposal,
             'countOther' => $countOther,
+            'countUsable' => $countBerfungsi,
+            'countMaintenance' => $countDalamPerbaikan,
+            'countDown' => $countTidakBerfungsi + $countProsesPenghapusan + $countOther,
             'assetStatusData' => $assetStatusData,
             'rawAssetStatusData' => $rawAssetStatusData,
             'uniqueStatusCount' => $uniqueStatusCount,
@@ -302,6 +342,8 @@ class DashboardController extends Controller
             'upcomingPreventives' => $upcomingPreventives,
             'availableMonths' => $availableMonths,
             'initialAnalyticsData' => $initialAnalyticsData,
+            'recentDocuments' => $recentDocuments,
+            'documentCount' => $documentCount,
         ]);
     }
 

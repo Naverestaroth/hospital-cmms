@@ -23,7 +23,7 @@
 
     <x-sidebar />
 
-    <div class="app-shell ml-[19.5rem] min-h-screen lg:ml-[21rem] relative z-10 p-6 lg:p-8 space-y-5">
+    <div class="app-shell ml-[19.5rem] min-h-screen lg:ml-[21rem] relative p-6 lg:p-8 space-y-5">
 
         <x-topbar />
 

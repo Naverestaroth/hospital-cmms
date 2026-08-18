@@ -43,15 +43,7 @@ $results = [
     'Other',
 ];
 
-$techniciansList = [
-    'Susanto',
-    'Hutami',
-    'Zaky',
-    'Lisa',
-    'Syarif',
-    'Syiefa',
-    'Ghazali',
-];
+$techniciansList = \App\Models\Technician::onDuty()->orderBy('name')->pluck('name');
 
 $prefillTicketTechs = isset($ticket) && $ticket ? $ticket->technicians->pluck('name')->toArray() : [];
 @endphp
