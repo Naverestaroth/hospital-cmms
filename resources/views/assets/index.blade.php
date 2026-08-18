@@ -91,11 +91,12 @@
         </div>
 
         <!-- Default View Mode: Tabel Asset Standard -->
-        <div x-show="viewMode === 'default'" class="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div x-show="viewMode === 'default'" class="overflow-x-auto rounded-[28px] border border-white/[0.35] bg-white/[0.08] shadow-[0_12px_28px_rgba(15,23,42,0.06)] backdrop-blur-[30px] relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50 pointer-events-none"></div>
 
-            <table class="min-w-full">
+            <table class="min-w-full relative z-10">
 
-                <thead class="bg-slate-50">
+                <thead class="bg-white/[0.04]">
 
                     @php
                     if (!function_exists('sortUrl')) {
@@ -111,7 +112,7 @@
                     }
                     @endphp
 
-                    <tr class="border-t transition hover:bg-slate-50">
+                    <tr class="border-t border-white/[0.15] transition">
 
                         <th class="px-6 py-4 text-left">No</th>
 
@@ -157,9 +158,9 @@
 
                 </thead>
 
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     @forelse ($assets as $asset)
-                    <tr class="border-t">
+                    <tr class="bg-white hover:bg-slate-50 transition text-slate-900">
 
                         <td class="px-6 py-4">
                             {{ $assets->firstItem() + $loop->index }}
@@ -252,22 +253,88 @@
         </div>
 
         <!-- View Mode: Per Ruangan (Grouped by Room Accordions) -->
-        <div x-show="viewMode === 'room'" class="space-y-4">
-            @php
-                $itemsToGroup = method_exists($assets, 'getCollection') ? $assets->getCollection() : $assets;
-                $groupedAssets = $itemsToGroup->groupBy(function($item) {
-                    return !empty(trim((string)$item->room)) ? trim((string)$item->room) : 'Unassigned / Ruangan Tidak Ditentukan';
-                })->sortKeys();
-            @endphp
+        @php
+            $itemsToGroup = method_exists($assets, 'getCollection') ? $assets->getCollection() : $assets;
+            $groupedAssets = $itemsToGroup->groupBy(function($item) {
+                return !empty(trim((string)$item->room)) ? trim((string)$item->room) : 'Unassigned / Ruangan Tidak Ditentukan';
+            })->sortKeys();
+            $firstRoomSlug = $groupedAssets->keys()->isNotEmpty() ? Str::slug($groupedAssets->keys()->first()) : '';
+        @endphp
 
+        <div x-show="viewMode === 'room'" class="space-y-4" x-data="{ 
+            activeRoom: window.location.hash.startsWith('#room-') ? window.location.hash.substring(6) : '{{ $firstRoomSlug }}',
+            canScrollLeft: false,
+            canScrollRight: false,
+            checkScroll() {
+                const el = this.$refs.scrollContainer;
+                if (!el) return;
+                const tolerance = 2;
+                this.canScrollLeft = el.scrollLeft > tolerance;
+                this.canScrollRight = el.scrollLeft + el.clientWidth < el.scrollWidth - tolerance;
+            }
+        }" x-init="
+            $nextTick(() => checkScroll()); 
+            window.addEventListener('resize', () => checkScroll());
+            window.addEventListener('hashchange', () => {
+                if (window.location.hash.startsWith('#room-')) {
+                    activeRoom = window.location.hash.substring(6);
+                }
+            });
+        ">
+            
+            <!-- Liquid Glass Room Navigation (Cross-Page) -->
+            <div class="relative w-full overflow-hidden py-1 mb-1">
+                <div class="mx-auto max-w-[1500px]">
+                    <div class="relative overflow-hidden rounded-[40px] border border-white bg-white/35 shadow-[0_12px_30px_rgba(15,23,42,0.04)] backdrop-blur-[30px] ring-1 ring-black/5">
+                        
+                        <!-- Layered Gradients to approximate Figma Liquid Glass -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-white/60 via-white/20 to-white/5 opacity-70 pointer-events-none"></div>
+                        <div class="absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-50 pointer-events-none"></div>
+                        
+                        <!-- Left Fade Edge -->
+                        <div x-show="canScrollLeft" x-transition.opacity.duration.300ms class="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white/90 via-white/70 to-transparent z-10 pointer-events-none rounded-l-[40px]"></div>
+                        
+                        <!-- Right Fade Edge -->
+                        <div x-show="canScrollRight" x-transition.opacity.duration.300ms class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white/90 via-white/70 to-transparent z-10 pointer-events-none rounded-r-[40px]"></div>
+
+                        <!-- Scrollable Container -->
+                        <div x-ref="scrollContainer" @scroll.passive="checkScroll" class="relative flex items-center gap-2 sm:gap-3 px-4 py-2 overflow-x-auto scroll-smooth z-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            
+                            @forelse($roomPages ?? [] as $roomName => $pageNum)
+                                @php $roomSlug = Str::slug($roomName); @endphp
+                                <a 
+                                    href="{{ request()->fullUrlWithQuery(['page' => $pageNum]) }}#room-{{ $roomSlug }}"
+                                    class="relative whitespace-nowrap px-4 py-1.5 rounded-full text-[14px] sm:text-[15px] lg:text-[16px] font-medium tracking-tight transition-all duration-300 outline-none select-none flex-shrink-0"
+                                    :class="activeRoom === '{{ $roomSlug }}' ? 'text-slate-900 shadow-sm ring-1 ring-black/5' : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'"
+                                    @click="activeRoom = '{{ $roomSlug }}'">
+                                    
+                                    <!-- Selected Pill Background -->
+                                    <div x-show="activeRoom === '{{ $roomSlug }}'" 
+                                         x-transition.opacity
+                                         class="absolute inset-0 bg-white/95 rounded-full shadow-[inset_0_1px_3px_rgba(255,255,255,1)] pointer-events-none -z-10"></div>
+                                    
+                                    {{ $roomName }}
+                                </a>
+                            @empty
+                                <div class="px-5 py-2 text-slate-500 text-sm">No rooms available</div>
+                            @endforelse
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grouped Room Accordions for the Current Page -->
             @forelse($groupedAssets as $roomName => $roomAssets)
-                <div x-data="{ isOpen: true }" class="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden transition">
+                <div id="room-{{ Str::slug($roomName) }}" x-data="{ isOpen: true }" class="relative rounded-[28px] border border-white/[0.35] bg-white/[0.08] shadow-[0_12px_28px_rgba(15,23,42,0.06)] backdrop-blur-[30px] overflow-hidden transition scroll-mt-24">
                     
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50 pointer-events-none"></div>
+
                     <!-- Room Accordion Header -->
                     <button
                         type="button"
                         @click="isOpen = !isOpen"
-                        class="w-full flex items-center justify-between p-5 bg-slate-50/80 hover:bg-slate-100/80 transition text-left border-b border-slate-200/60">
+                        class="relative z-10 w-full flex items-center justify-between px-6 py-5 bg-white/[0.02] hover:bg-white/[0.06] transition text-left border-b border-white/[0.15]">
                         
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
@@ -300,9 +367,9 @@
                     </button>
 
                     <!-- Room Assets Table (Collapsible) -->
-                    <div x-show="isOpen" class="overflow-x-auto">
+                    <div x-show="isOpen" class="relative z-10 overflow-x-auto">
                         <table class="min-w-full">
-                            <thead class="bg-slate-50/50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                            <thead class="bg-white/[0.04] text-xs font-semibold text-slate-700 uppercase tracking-wider border-b border-white/[0.15]">
                                 <tr>
                                     <th class="px-6 py-3.5 text-left">No</th>
                                     <th class="px-6 py-3.5 text-left">Asset Code</th>
@@ -316,7 +383,7 @@
                             </thead>
                             <tbody class="divide-y divide-slate-100 text-sm">
                                 @foreach($roomAssets as $index => $asset)
-                                    <tr class="hover:bg-slate-50/60 transition">
+                                    <tr class="bg-white hover:bg-slate-50 transition text-slate-900">
                                         <td class="px-6 py-4 text-slate-500">
                                             {{ $index + 1 }}
                                         </td>

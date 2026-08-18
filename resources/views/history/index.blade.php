@@ -104,14 +104,34 @@
                     <div class="overflow-x-auto max-h-[520px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-2xl">
                         <table class="min-w-full text-xs">
                             <thead class="bg-slate-50 text-slate-600 font-semibold uppercase border-b sticky top-0 bg-white shadow-xs z-10">
+                                @php
+                                    function sortUrlH($field, $sortParam, $dirParam, $currentSort, $currentDir) {
+                                        $newDir = ($currentSort === $field && $currentDir === 'asc') ? 'desc' : 'asc';
+                                        return request()->fullUrlWithQuery([$sortParam => $field, $dirParam => $newDir]);
+                                    }
+                                    function sortIconH($field, $currentSort, $currentDir) {
+                                        if ($currentSort !== $field) return '';
+                                        return $currentDir === 'asc' ? ' ↑' : ' ↓';
+                                    }
+                                @endphp
                                 <tr>
-                                    <th class="px-4 py-3 text-left">Ticket Code</th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('ticket_code','tickets_sort','tickets_dir',$ticketsSort,$ticketsDir) }}" class="{{ $ticketsSort==='ticket_code' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Ticket Code{!! sortIconH('ticket_code',$ticketsSort,$ticketsDir) !!}</a>
+                                    </th>
                                     <th class="px-4 py-3 text-left">Asset</th>
                                     <th class="px-4 py-3 text-left">Room</th>
-                                    <th class="px-4 py-3 text-left">Created Date</th>
-                                    <th class="px-4 py-3 text-left">Priority</th>
-                                    <th class="px-4 py-3 text-left">Status</th>
-                                    <th class="px-4 py-3 text-left">Technician(s)</th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('created_at','tickets_sort','tickets_dir',$ticketsSort,$ticketsDir) }}" class="{{ $ticketsSort==='created_at' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Created Date{!! sortIconH('created_at',$ticketsSort,$ticketsDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('priority','tickets_sort','tickets_dir',$ticketsSort,$ticketsDir) }}" class="{{ $ticketsSort==='priority' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Priority{!! sortIconH('priority',$ticketsSort,$ticketsDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('status','tickets_sort','tickets_dir',$ticketsSort,$ticketsDir) }}" class="{{ $ticketsSort==='status' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Status{!! sortIconH('status',$ticketsSort,$ticketsDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('reported_by','tickets_sort','tickets_dir',$ticketsSort,$ticketsDir) }}" class="{{ $ticketsSort==='reported_by' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Technician(s){!! sortIconH('reported_by',$ticketsSort,$ticketsDir) !!}</a>
+                                    </th>
                                     <th class="px-4 py-3 text-center">Action</th>
                                 </tr>
                             </thead>
@@ -171,11 +191,21 @@
                         <table class="min-w-full text-xs">
                             <thead class="bg-slate-50 text-slate-600 font-semibold uppercase border-b sticky top-0 bg-white shadow-xs z-10">
                                 <tr>
-                                    <th class="px-4 py-3 text-left">Repair Date</th>
-                                    <th class="px-4 py-3 text-left">Asset</th>
-                                    <th class="px-4 py-3 text-left">Room</th>
-                                    <th class="px-4 py-3 text-left">Problem Symptoms</th>
-                                    <th class="px-4 py-3 text-left">Action Solution</th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('repair_date','correctives_sort','correctives_dir',$correctivesSort,$correctivesDir) }}" class="{{ $correctivesSort==='repair_date' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Repair Date{!! sortIconH('repair_date',$correctivesSort,$correctivesDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('asset_name','correctives_sort','correctives_dir',$correctivesSort,$correctivesDir) }}" class="{{ $correctivesSort==='asset_name' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Asset{!! sortIconH('asset_name',$correctivesSort,$correctivesDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('room','correctives_sort','correctives_dir',$correctivesSort,$correctivesDir) }}" class="{{ $correctivesSort==='room' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Room{!! sortIconH('room',$correctivesSort,$correctivesDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('problem','correctives_sort','correctives_dir',$correctivesSort,$correctivesDir) }}" class="{{ $correctivesSort==='problem' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Problem Symptoms{!! sortIconH('problem',$correctivesSort,$correctivesDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('solution','correctives_sort','correctives_dir',$correctivesSort,$correctivesDir) }}" class="{{ $correctivesSort==='solution' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Action Solution{!! sortIconH('solution',$correctivesSort,$correctivesDir) !!}</a>
+                                    </th>
                                     <th class="px-4 py-3 text-left">Technician</th>
                                     <th class="px-4 py-3 text-center">Action</th>
                                 </tr>
@@ -228,12 +258,20 @@
                         <table class="min-w-full text-xs">
                             <thead class="bg-slate-50 text-slate-600 font-semibold uppercase border-b sticky top-0 bg-white shadow-xs z-10">
                                 <tr>
-                                    <th class="px-4 py-3 text-left">Schedule Date</th>
-                                    <th class="px-4 py-3 text-left">Asset</th>
-                                    <th class="px-4 py-3 text-left">Room</th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('schedule_date','preventives_sort','preventives_dir',$preventivesSort,$preventivesDir) }}" class="{{ $preventivesSort==='schedule_date' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Schedule Date{!! sortIconH('schedule_date',$preventivesSort,$preventivesDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('asset_name','preventives_sort','preventives_dir',$preventivesSort,$preventivesDir) }}" class="{{ $preventivesSort==='asset_name' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Asset{!! sortIconH('asset_name',$preventivesSort,$preventivesDir) !!}</a>
+                                    </th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('room','preventives_sort','preventives_dir',$preventivesSort,$preventivesDir) }}" class="{{ $preventivesSort==='room' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Room{!! sortIconH('room',$preventivesSort,$preventivesDir) !!}</a>
+                                    </th>
                                     <th class="px-4 py-3 text-left">Condition / Type</th>
                                     <th class="px-4 py-3 text-left">Technician</th>
-                                    <th class="px-4 py-3 text-left">Status</th>
+                                    <th class="px-4 py-3 text-left">
+                                        <a href="{{ sortUrlH('status','preventives_sort','preventives_dir',$preventivesSort,$preventivesDir) }}" class="{{ $preventivesSort==='status' ? 'text-emerald-600 font-bold' : 'hover:text-slate-900' }}">Status{!! sortIconH('status',$preventivesSort,$preventivesDir) !!}</a>
+                                    </th>
                                     <th class="px-4 py-3 text-center">Action</th>
                                 </tr>
                             </thead>

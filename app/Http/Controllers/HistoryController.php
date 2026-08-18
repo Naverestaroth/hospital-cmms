@@ -13,6 +13,12 @@ class HistoryController extends Controller
     {
         $search = $request->input('search');
 
+        // --- Tickets sorting ---
+        $ticketsSortable  = ['ticket_code', 'reported_by', 'priority', 'status', 'created_at'];
+        $ticketsSort      = in_array($request->input('tickets_sort'), $ticketsSortable)
+                            ? $request->input('tickets_sort') : 'created_at';
+        $ticketsDir       = $request->input('tickets_dir') === 'asc' ? 'asc' : 'desc';
+
         $tickets = Ticket::query()
             ->with(['asset', 'technicians'])
             ->when($search, function ($query, $search) {
@@ -23,9 +29,15 @@ class HistoryController extends Controller
                         ->orWhere('status', 'like', "%{$search}%");
                 });
             })
-            ->latest()
+            ->orderBy($ticketsSort, $ticketsDir)
             ->paginate(15, ['*'], 'tickets_page')
             ->withQueryString();
+
+        // --- Correctives sorting ---
+        $correctivesSortable = ['repair_date', 'asset_name', 'room', 'problem', 'solution', 'created_at'];
+        $correctivesSort     = in_array($request->input('correctives_sort'), $correctivesSortable)
+                               ? $request->input('correctives_sort') : 'created_at';
+        $correctivesDir      = $request->input('correctives_dir') === 'asc' ? 'asc' : 'desc';
 
         $correctives = Corrective::query()
             ->when($search, function ($query, $search) {
@@ -37,9 +49,15 @@ class HistoryController extends Controller
                         ->orWhere('technician', 'like', "%{$search}%");
                 });
             })
-            ->latest()
+            ->orderBy($correctivesSort, $correctivesDir)
             ->paginate(15, ['*'], 'correctives_page')
             ->withQueryString();
+
+        // --- Preventives sorting ---
+        $preventivesSortable = ['schedule_date', 'asset_name', 'room', 'status', 'created_at'];
+        $preventivesSort     = in_array($request->input('preventives_sort'), $preventivesSortable)
+                               ? $request->input('preventives_sort') : 'created_at';
+        $preventivesDir      = $request->input('preventives_dir') === 'asc' ? 'asc' : 'desc';
 
         $preventives = Preventive::query()
             ->when($search, function ($query, $search) {
@@ -49,10 +67,15 @@ class HistoryController extends Controller
                         ->orWhere('status', 'like', "%{$search}%");
                 });
             })
-            ->latest()
+            ->orderBy($preventivesSort, $preventivesDir)
             ->paginate(15, ['*'], 'preventives_page')
             ->withQueryString();
 
-        return view('history.index', compact('tickets', 'correctives', 'preventives', 'search'));
+        return view('history.index', compact(
+            'tickets', 'correctives', 'preventives', 'search',
+            'ticketsSort', 'ticketsDir',
+            'correctivesSort', 'correctivesDir',
+            'preventivesSort', 'preventivesDir'
+        ));
     }
 }

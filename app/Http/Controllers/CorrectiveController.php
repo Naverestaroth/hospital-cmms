@@ -11,7 +11,11 @@ class CorrectiveController extends Controller
 {
     public function index(Request $request)
     {
-        $sortableColumns = ['repair_date', 'response_time', 'room', 'asset_name', 'brand', 'type', 'serial_number'];
+        $sortableColumns = [
+            'repair_date', 'distributor', 'problem', 'solution',
+            'sparepart', 'quantity', 'inspection_result', 'user_name',
+            'response_time', 'room', 'asset_name', 'brand', 'type', 'serial_number',
+        ];
         $sortField = $request->input('sort', 'created_at');
         $sortDirection = $request->input('direction', 'desc');
 
@@ -19,7 +23,7 @@ class CorrectiveController extends Controller
             $sortField = 'created_at';
         }
 
-        $correctives = Corrective::query()
+        $baseQuery = Corrective::query()
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('asset_name', 'like', "%{$search}%")
@@ -28,11 +32,22 @@ class CorrectiveController extends Controller
                         ->orWhere('technician', 'like', "%{$search}%");
                 });
             })
-            ->orderBy($sortField, $sortDirection)
-            ->paginate(15)
-            ->withQueryString();
+            ->orderBy($sortField, $sortDirection);
 
-        return view('correctives.index', compact('correctives', 'sortField', 'sortDirection'));
+        // Compute room pages for cross-page room navigation (mirrors AssetController)
+        $roomPages = [];
+        $allRoomsOrdered = (clone $baseQuery)->pluck('room');
+        foreach ($allRoomsOrdered as $index => $room) {
+            $roomName = !empty(trim((string)$room)) ? trim((string)$room) : 'Unassigned / Ruangan Tidak Ditentukan';
+            if (!isset($roomPages[$roomName])) {
+                $roomPages[$roomName] = (int) floor($index / 15) + 1;
+            }
+        }
+        ksort($roomPages);
+
+        $correctives = $baseQuery->paginate(15)->withQueryString();
+
+        return view('correctives.index', compact('correctives', 'sortField', 'sortDirection', 'roomPages'));
     }
 
     public function create(Request $request)

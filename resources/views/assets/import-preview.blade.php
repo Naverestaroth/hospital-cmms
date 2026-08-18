@@ -67,53 +67,47 @@
             @endif
         </div>
 
-        <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm mt-4">
-            <table class="min-w-full">
-                <thead class="bg-slate-50">
-                    <tr class="border-t transition hover:bg-slate-50">
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Asset Code</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Asset Name</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Brand</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Type</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Serial Number</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Procurement Year</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Room</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Description</th>
-                    </tr>
-                </thead>
+        <x-table class="mt-4">
+    <x-slot name="thead">
+        <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Asset Code</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Asset Name</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Brand</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Type</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Serial Number</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Procurement Year</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Room</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Description</th>
+        </tr>
+    </x-slot>
 
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($rows as $row)
-                    <tr class="transition hover:bg-slate-50/80">
-                        <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $row['asset_code'] ?? '—' }}</td>
-                        <td class="px-6 py-4 text-sm font-medium text-slate-800">{{ $row['asset_name'] ?? '—' }}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600">{{ $row['brand'] ?? '—' }}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600">{{ $row['type'] ?? '—' }}</td>
-                        <td class="px-6 py-4 text-sm font-mono text-slate-600">{{ $row['serial_number'] ?? '—' }}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600">{{ $row['procurement_year'] ?? '—' }}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600">{{ $row['room'] ?? '—' }}</td>
-                        <td class="px-6 py-4 text-sm text-slate-600">
-                            @if(!empty($row['status']))
-                                <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
-                                    {{ $row['status'] }}
-                                </span>
-                            @else
-                                —
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">{{ $row['description'] ?? '—' }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="px-6 py-12 text-center text-sm text-slate-500">
-                            No rows to preview.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    @forelse($rows as $row)
+        <tr class="transition hover:bg-slate-50/80">
+            <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $row['asset_code'] ?? '—' }}</td>
+            <td class="px-6 py-4 text-sm font-medium text-slate-800">{{ $row['asset_name'] ?? '—' }}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">{{ $row['brand'] ?? '—' }}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">{{ $row['type'] ?? '—' }}</td>
+            <td class="px-6 py-4 text-sm font-mono text-slate-600">{{ $row['serial_number'] ?? '—' }}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">{{ $row['procurement_year'] ?? '—' }}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">{{ $row['room'] ?? '—' }}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">
+                @if(!empty($row['status']))
+                    <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                        {{ $row['status'] }}
+                    </span>
+                @else
+                    —
+                @endif
+            </td>
+            <td class="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">{{ $row['description'] ?? '—' }}</td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="9" class="px-6 py-12 text-center text-sm text-slate-500">No rows to preview.</td>
+        </tr>
+    @endforelse
+</x-table>
 
         @php
             $totalRows = count($rows);

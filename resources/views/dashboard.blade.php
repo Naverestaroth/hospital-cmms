@@ -68,7 +68,7 @@
 
             {{-- COLUMN 1 (3.8 Cols) --}}
             <div class="lg:col-span-4 bento-col flex flex-col gap-5">
-                
+
                 {{-- CARD 1: Equipment Status Component (Operations-First) --}}
                 <div class="feature-card glass rounded-[24px] p-5 flex flex-col gap-4" id="card1-equipment-status">
                     <a href="{{ route('assets.index', ['status' => 'Dalam Perbaikan']) }}"
@@ -232,7 +232,7 @@
                             <div>
                                 <div class="rating-label text-[10.5px] font-bold text-[#5B7480] uppercase tracking-wider">TICKET STATUS OVERVIEW</div>
                                 <div class="rating-value mono text-xl font-bold text-[#0B1E26] mt-0.5">
-                                    <span id="card4-total-val">{{ number_format($initialAnalyticsData['total_requests']) }}</span> 
+                                    <span id="card4-total-val">{{ number_format($initialAnalyticsData['total_requests']) }}</span>
                                     <span class="rating-max text-xs text-[#8CA0A8] font-normal">total requests</span>
                                 </div>
                             </div>
@@ -372,7 +372,7 @@
                                             </div>
                                         </div>
 
-                                        <a href="{{ route('documents.show', $doc) }}" 
+                                        <a href="{{ route('documents.show', $doc) }}"
                                            class="px-2.5 py-1 rounded-lg bg-[#0A4A57] text-white text-[10px] font-bold hover:bg-[#073640] transition flex-shrink-0 flex items-center gap-1"
                                            title="View Document Details">
                                             <span>Open</span>
@@ -407,7 +407,7 @@
 
                 {{-- CARD 7: Quick Actions Component (Proportional Background & Unclipped Radial Wheel) --}}
                 <div class="feature-card glass rounded-[24px] p-5 flex flex-col items-center text-center gap-3 relative overflow-visible h-full justify-between" x-data="{ isOpen: true }">
-                    
+
                     <!-- Header Section -->
                     <div class="w-full border-b border-[#E2EBEE]/70 pb-2.5 flex items-center justify-between z-10">
                         <div class="text-left">
@@ -421,7 +421,7 @@
 
                     <!-- Fixed Size Radial Wheel Cluster Area (Proportional Background) -->
                     <div class="radial-menu-cluster relative w-full h-44 flex items-center justify-center overflow-visible my-auto">
-                        
+
                         <!-- Outer Decorative Guide Rings -->
                         <div class="orbit-ring absolute rounded-full border border-dashed border-[#0B1E26]/20 w-44 h-44 pointer-events-none transition-transform duration-700"
                              :class="{ 'scale-100 opacity-100 rotate-45': isOpen, 'scale-75 opacity-40': !isOpen }"></div>
@@ -518,9 +518,9 @@
 
                 <div class="space-y-3 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
                     @forelse($techniciansWorkload as $tech)
-                        @php 
+                        @php
                             $workload = $tech->total_workload ?? 0;
-                            $pct = round(($workload / $maxActiveTickets) * 100); 
+                            $pct = round(($workload / $maxActiveTickets) * 100);
                             $isOnDuty = strcasecmp($tech->duty_status, 'On Duty') === 0;
                         @endphp
                         {{-- Background/latar widget mengikuti perubahan workload/data, bukan status duty --}}
