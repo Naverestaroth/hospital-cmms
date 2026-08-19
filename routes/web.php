@@ -129,88 +129,92 @@ Route::middleware('auth')->group(function () {
 
     Route::view('/settings', 'settings.index')->name('settings');
 
-    Route::post('/settings/wipe', function (\Illuminate\Http\Request $request) {
-        $targets = $request->input('targets', []);
+    Route::middleware('role:developer')->group(function () {
+        Route::post('/settings/wipe', function (\Illuminate\Http\Request $request) {
 
-        if (empty($targets)) {
-            return redirect()->back()->with('error', 'Pilih setidaknya satu kategori data input untuk dibersihkan.');
-        }
+            $targets = $request->input('targets', []);
 
-        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
-        $cleared = [];
-
-        if (in_array('tickets', $targets)) {
-            if (\Illuminate\Support\Facades\Schema::hasTable('ticket_activities')) \App\Models\TicketActivity::truncate();
-            if (\Illuminate\Support\Facades\Schema::hasTable('ticket_technician')) \Illuminate\Support\Facades\DB::table('ticket_technician')->delete();
-            if (\Illuminate\Support\Facades\Schema::hasTable('ticket_work_logs')) \Illuminate\Support\Facades\DB::table('ticket_work_logs')->delete();
-            \App\Models\Ticket::truncate();
-            $cleared[] = 'Tickets & History';
-        }
-
-        if (in_array('corrective', $targets)) {
-            \App\Models\Corrective::truncate();
-            $cleared[] = 'Corrective Maintenance';
-        }
-
-        if (in_array('preventive', $targets)) {
-            \App\Models\Preventive::truncate();
-            $cleared[] = 'Preventive Maintenance';
-        }
-
-        if (in_array('assets', $targets)) {
-            \App\Models\Asset::truncate();
-            $cleared[] = 'Assets / Equipment';
-        }
-
-        if (in_array('schedules', $targets) || in_array('technician_schedules', $targets)) {
-            if (\Illuminate\Support\Facades\Schema::hasTable('technician_schedules')) \App\Models\TechnicianSchedule::truncate();
-            if (\Illuminate\Support\Facades\Schema::hasTable('technician_schedule_exceptions')) \App\Models\TechnicianScheduleException::truncate();
-            $cleared[] = 'Jadwal & History Teknisi';
-        }
-
-        if (in_array('spareparts', $targets)) {
-            \App\Models\Sparepart::truncate();
-            $cleared[] = 'Spareparts';
-        }
-
-        if (in_array('vendors', $targets)) {
-            \App\Models\Vendor::truncate();
-            $cleared[] = 'Vendors';
-        }
-
-        if (in_array('movements', $targets) || in_array('equipment_movements', $targets)) {
-            if (\Illuminate\Support\Facades\Schema::hasTable('equipment_movements')) {
-                \Illuminate\Support\Facades\DB::table('equipment_movements')->delete();
+            if (empty($targets)) {
+                return redirect()->back()->with('error', 'Pilih setidaknya satu kategori data input untuk dibersihkan.');
             }
-            if (\Illuminate\Support\Facades\Schema::hasTable('asset_movements')) {
-                \Illuminate\Support\Facades\DB::table('asset_movements')->delete();
-            }
-            if (\Illuminate\Support\Facades\Schema::hasTable('tickets')) {
-                \App\Models\Ticket::query()->update([
-                    'sent_to_workshop_date' => null,
-                    'sent_by' => null,
-                    'received_by_workshop' => null,
-                    'returned_date' => null,
-                    'returned_by' => null,
-                    'received_by_user' => null,
-                    'equipment_completeness' => null,
-                ]);
-            }
-            $cleared[] = 'Equipment Movements History';
-        }
 
-        if (in_array('documents', $targets) || in_array('document_center', $targets)) {
-            if (\Illuminate\Support\Facades\Schema::hasTable('documents')) {
-                \App\Models\Document::truncate();
+            \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+            $cleared = [];
+
+            if (in_array('tickets', $targets)) {
+                if (\Illuminate\Support\Facades\Schema::hasTable('ticket_activities')) \App\Models\TicketActivity::truncate();
+                if (\Illuminate\Support\Facades\Schema::hasTable('ticket_technician')) \Illuminate\Support\Facades\DB::table('ticket_technician')->delete();
+                if (\Illuminate\Support\Facades\Schema::hasTable('ticket_work_logs')) \Illuminate\Support\Facades\DB::table('ticket_work_logs')->delete();
+                \App\Models\Ticket::truncate();
+                $cleared[] = 'Tickets & History';
             }
-            $cleared[] = 'Document Center';
-        }
 
-        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+            if (in_array('corrective', $targets)) {
+                \App\Models\Corrective::truncate();
+                $cleared[] = 'Corrective Maintenance';
+            }
 
-        $msg = 'Data input (' . implode(', ', $cleared) . ') berhasil dibersihkan dari database.';
-        return redirect()->back()->with('success', $msg);
-    })->name('settings.wipe');
+            if (in_array('preventive', $targets)) {
+                \App\Models\Preventive::truncate();
+                $cleared[] = 'Preventive Maintenance';
+            }
+
+            if (in_array('assets', $targets)) {
+                \App\Models\Asset::truncate();
+                $cleared[] = 'Assets / Equipment';
+            }
+
+            if (in_array('schedules', $targets) || in_array('technician_schedules', $targets)) {
+                if (\Illuminate\Support\Facades\Schema::hasTable('technician_schedules')) \App\Models\TechnicianSchedule::truncate();
+                if (\Illuminate\Support\Facades\Schema::hasTable('technician_schedule_exceptions')) \App\Models\TechnicianScheduleException::truncate();
+                $cleared[] = 'Jadwal & History Teknisi';
+            }
+
+            if (in_array('spareparts', $targets)) {
+                \App\Models\Sparepart::truncate();
+                $cleared[] = 'Spareparts';
+            }
+
+            if (in_array('vendors', $targets)) {
+                \App\Models\Vendor::truncate();
+                $cleared[] = 'Vendors';
+            }
+
+            if (in_array('movements', $targets) || in_array('equipment_movements', $targets)) {
+                if (\Illuminate\Support\Facades\Schema::hasTable('equipment_movements')) {
+                    \Illuminate\Support\Facades\DB::table('equipment_movements')->delete();
+                }
+                if (\Illuminate\Support\Facades\Schema::hasTable('asset_movements')) {
+                    \Illuminate\Support\Facades\DB::table('asset_movements')->delete();
+                }
+                if (\Illuminate\Support\Facades\Schema::hasTable('tickets')) {
+                    \App\Models\Ticket::query()->update([
+                        'sent_to_workshop_date' => null,
+                        'sent_by' => null,
+                        'received_by_workshop' => null,
+                        'returned_date' => null,
+                        'returned_by' => null,
+                        'received_by_user' => null,
+                        'equipment_completeness' => null,
+                    ]);
+                }
+                $cleared[] = 'Equipment Movements History';
+            }
+
+            if (in_array('documents', $targets) || in_array('document_center', $targets)) {
+                if (\Illuminate\Support\Facades\Schema::hasTable('documents')) {
+                    \App\Models\Document::truncate();
+                }
+                $cleared[] = 'Document Center';
+            }
+
+            \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+
+            $msg = 'Data input (' . implode(', ', $cleared) . ') berhasil dibersihkan dari database.';
+            return redirect()->back()->with('success', $msg);
+        })->name('settings.wipe');
+    });
+
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

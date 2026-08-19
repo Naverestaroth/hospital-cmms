@@ -76,25 +76,28 @@
 
         <div class="flex flex-wrap items-center gap-3">
 
-            <button
-                type="button"
-                @click="importModalOpen = true"
-                class="rounded-2xl border border-teal-300 bg-teal-50 px-4 py-2.5 text-xs font-semibold text-teal-900 hover:bg-teal-100 transition shadow-sm flex items-center gap-2">
-                <svg viewBox="0 0 24 24" class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/>
-                </svg>
-                Import Jadwal
-            </button>
+            @if(!Auth::user()->isTeknisi())
+                <button
+                    type="button"
+                    @click="importModalOpen = true"
+                    class="rounded-2xl border border-teal-300 bg-teal-50 px-4 py-2.5 text-xs font-semibold text-teal-900 hover:bg-teal-100 transition shadow-sm flex items-center gap-2">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/>
+                    </svg>
+                    Import Jadwal
+                </button>
 
-            <button
-                type="button"
-                @click="exceptionModalOpen = true"
-                class="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 transition shadow-sm flex items-center gap-2">
-                <svg viewBox="0 0 24 24" class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-                Lembur & Izin
-            </button>
+                <button
+                    type="button"
+                    @click="exceptionModalOpen = true"
+                    class="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 transition shadow-sm flex items-center gap-2">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    Lembur & Izin
+                </button>
+            @endif
+
 
             <div class="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800 shadow-sm">
                 <span class="relative flex h-2.5 w-2.5">
@@ -217,25 +220,28 @@
 
                 {{-- Action buttons --}}
                 <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
-                    <button
-                        type="button"
-                        @click="openEdit(
-                            {{ $tech->id }},
-                            '{{ addslashes($tech->name) }}',
-                            '{{ addslashes($tech->email ?? '') }}',
-                            '{{ addslashes($tech->phone ?? '') }}',
-                            '{{ $tech->getAttributes()['duty_status'] ?? 'Off Duty' }}',
-                            '{{ $tech->manual_override ?? '' }}'
-                        )"
-                        class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 shadow-sm text-xs flex items-center justify-center gap-1.5">
-                        <svg viewBox="0 0 24 24" class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        Edit
-                    </button>
+                    @if(!Auth::user()->isTeknisi())
+                        <button
+                            type="button"
+                            @click="openEdit(
+                                {{ $tech->id }},
+                                '{{ addslashes($tech->name) }}',
+                                '{{ addslashes($tech->email ?? '') }}',
+                                '{{ addslashes($tech->phone ?? '') }}',
+                                '{{ $tech->getAttributes()['duty_status'] ?? 'Off Duty' }}',
+                                '{{ $tech->manual_override ?? '' }}'
+                            )"
+                            class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 shadow-sm text-xs flex items-center justify-center gap-1.5">
+                            <svg viewBox="0 0 24 24" class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Edit
+                        </button>
+                    @endif
 
                     <a href="{{ route('technicians.show', $tech) }}"
+
                        class="flex-1 rounded-2xl bg-[#0A4A57] px-4 py-3 text-center font-semibold text-white transition hover:bg-[#073640] shadow-sm flex items-center justify-center gap-1.5 text-xs">
                         Open Dashboard
                         <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">

@@ -5,16 +5,15 @@
         <div class="flex items-center justify-between">
 
             <div>
-
                 <h1 class="text-3xl font-bold text-slate-900">
-                    Reports
+                    {{ Auth::user()->isTeknisi() ? 'Laporan Kerja' : 'Reports' }}
                 </h1>
 
                 <p class="mt-2 text-slate-500">
-                    Generate and export hospital maintenance reports.
+                    {{ Auth::user()->isTeknisi() ? 'Laporan aktivitas dan ringkasan pekerjaan maintenance.' : 'Generate and export hospital maintenance reports.' }}
                 </p>
-
             </div>
+
 
             <a
                 href="{{ route('reports.assets.pdf') }}"

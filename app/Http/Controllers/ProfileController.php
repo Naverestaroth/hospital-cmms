@@ -26,16 +26,15 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->name = $request->validated('name');
+        $user->google_email = $request->validated('google_email');
+        $user->phone = $request->validated('phone');
+        $user->save();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::back()->with('success', 'Profil akun berhasil diperbarui.');
     }
+
 
     /**
      * Delete the user's account.

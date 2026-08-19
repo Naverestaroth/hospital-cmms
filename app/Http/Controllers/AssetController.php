@@ -96,6 +96,10 @@ class AssetController extends Controller
 
     public function create()
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Aset.');
+        }
+
         $rooms = Asset::query()
             ->whereNotNull('room')
             ->where('room', '!=', '')
@@ -110,7 +114,12 @@ class AssetController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Aset.');
+        }
+
         if ($request->input('status_select') === 'Other') {
+
             $request->merge(['status' => $request->input('status_custom') ?: 'Other']);
         } elseif ($request->has('status_select') && !empty($request->input('status_select'))) {
             $request->merge(['status' => $request->input('status_select')]);
@@ -217,6 +226,10 @@ class AssetController extends Controller
 
     public function edit(Asset $asset)
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Aset.');
+        }
+
         $rooms = Asset::query()
             ->whereNotNull('room')
             ->where('room', '!=', '')
@@ -235,6 +248,10 @@ class AssetController extends Controller
 
     public function update(Request $request, Asset $asset)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Aset.');
+        }
+
         if ($request->input('status_select') === 'Other') {
             $request->merge(['status' => $request->input('status_custom') ?: 'Other']);
         } elseif ($request->has('status_select') && !empty($request->input('status_select'))) {
@@ -267,12 +284,17 @@ class AssetController extends Controller
 
     public function destroy(Asset $asset)
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Aset.');
+        }
+
         $asset->delete();
 
         return redirect()
             ->route('assets.index')
             ->with('success', 'Asset deleted successfully.');
     }
+
 
     public function downloadQr(Asset $asset)
     {

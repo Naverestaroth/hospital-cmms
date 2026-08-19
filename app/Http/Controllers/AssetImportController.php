@@ -12,8 +12,13 @@ class AssetImportController extends Controller
 {
     public function showUpload()
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi tidak memiliki akses untuk import aset.');
+        }
+
         return view('assets.import-upload');
     }
+
 
     public function preview(Request $request)
     {

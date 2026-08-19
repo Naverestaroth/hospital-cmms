@@ -14,17 +14,20 @@
                 </p>
             </div>
 
-            <div class="flex items-center gap-4">
-                <a href="/assets/import" class="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
-                    Import
-                </a>
+            @if(!Auth::user()->isTeknisi())
+                <div class="flex items-center gap-4">
+                    <a href="/assets/import" class="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                        Import
+                    </a>
 
-                <a
-                    href="{{ route('assets.create') }}"
-                    class="ds-button-primary">
-                    + New Asset
-                </a>
-            </div>
+                    <a
+                        href="{{ route('assets.create') }}"
+                        class="ds-button-primary">
+                        + New Asset
+                    </a>
+                </div>
+            @endif
+
 
         </div>
 
@@ -218,26 +221,29 @@
                                     View
                                 </a>
 
-                                <a
-                                    href="{{ route('assets.edit', $asset) }}"
-                                    class="text-emerald-700 hover:underline">
-                                    Edit
-                                </a>
+                                @if(!Auth::user()->isTeknisi())
+                                    <a
+                                        href="{{ route('assets.edit', $asset) }}"
+                                        class="text-emerald-700 hover:underline">
+                                        Edit
+                                    </a>
 
-                                <form
-                                    action="{{ route('assets.destroy', $asset) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Are you sure you want to delete this asset?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button
-                                        type="submit"
-                                        class="text-red-600 hover:underline">
-                                        Delete
-                                    </button>
-                                </form>
+                                    <form
+                                        action="{{ route('assets.destroy', $asset) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete this asset?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="submit"
+                                            class="text-red-600 hover:underline">
+                                            Delete
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
+
                     </tr>
                     @empty
                     <tr>
@@ -430,18 +436,21 @@
                                                 <a href="{{ route('assets.show', $asset) }}" class="text-blue-600 hover:underline">
                                                     View
                                                 </a>
-                                                <a href="{{ route('assets.edit', $asset) }}" class="text-emerald-700 hover:underline">
-                                                    Edit
-                                                </a>
-                                                <form action="{{ route('assets.destroy', $asset) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this asset?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:underline">
-                                                        Delete
-                                                    </button>
-                                                </form>
+                                                @if(!Auth::user()->isTeknisi())
+                                                    <a href="{{ route('assets.edit', $asset) }}" class="text-emerald-700 hover:underline">
+                                                        Edit
+                                                    </a>
+                                                    <form action="{{ route('assets.destroy', $asset) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this asset?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 hover:underline">
+                                                            Delete
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </div>
                                         </td>
+
                                     </tr>
                                 @endforeach
                             </tbody>

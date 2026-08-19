@@ -12,17 +12,32 @@ class TechnicianController extends Controller
 {
     public function index(Request $request)
     {
-        $allTechnicians = Technician::with([
-            'schedules' => function ($q) {
-                $q->orderBy('shift_date', 'desc');
-            },
-            'scheduleExceptions' => function ($q) {
-                $q->orderBy('start_at', 'desc');
-            },
-            'tickets' => function ($q) {
-                $q->whereNotIn('status', ['Closed', 'Rejected', 'Cancelled', 'Completed'])->with('asset');
-            }
-        ])->orderBy('name')->get();
+        if ($request->user() && $request->user()->isTeknisi()) {
+            $userTech = $request->user()->technician ?? Technician::where('email', $request->user()->email)->first();
+            $allTechnicians = $userTech ? collect([$userTech->load([
+                'schedules' => function ($q) {
+                    $q->orderBy('shift_date', 'desc');
+                },
+                'scheduleExceptions' => function ($q) {
+                    $q->orderBy('start_at', 'desc');
+                },
+                'tickets' => function ($q) {
+                    $q->whereNotIn('status', ['Closed', 'Rejected', 'Cancelled', 'Completed'])->with('asset');
+                }
+            ])]) : collect();
+        } else {
+            $allTechnicians = Technician::with([
+                'schedules' => function ($q) {
+                    $q->orderBy('shift_date', 'desc');
+                },
+                'scheduleExceptions' => function ($q) {
+                    $q->orderBy('start_at', 'desc');
+                },
+                'tickets' => function ($q) {
+                    $q->whereNotIn('status', ['Closed', 'Rejected', 'Cancelled', 'Completed'])->with('asset');
+                }
+            ])->orderBy('name')->get();
+        }
 
         $search = $request->input('search');
         if ($search) {
@@ -42,9 +57,9 @@ class TechnicianController extends Controller
             $filteredTechnicians = $allTechnicians;
         }
 
-        $onDutyCount  = Technician::all()->filter(fn($t) => $t->duty_status === 'On Duty')->count();
-        $offDutyCount = Technician::all()->filter(fn($t) => $t->duty_status === 'Off Duty')->count();
-        $totalCount   = Technician::count();
+        $onDutyCount  = $allTechnicians->filter(fn($t) => $t->duty_status === 'On Duty')->count();
+        $offDutyCount = $allTechnicians->filter(fn($t) => $t->duty_status === 'Off Duty')->count();
+        $totalCount   = $allTechnicians->count();
 
         $recentExceptions = TechnicianScheduleException::with('technician')->latest()->take(10)->get();
         $recentSchedules  = TechnicianSchedule::with('technician')->latest()->take(10)->get();
@@ -63,6 +78,13 @@ class TechnicianController extends Controller
 
     public function show($id)
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            $userTech = request()->user()->technician ?? Technician::where('email', request()->user()->email)->first();
+            if (!$userTech || $userTech->id != $id) {
+                abort(403, 'Role Teknisi hanya dapat melihat jadwal dan tugas milik sendiri.');
+            }
+        }
+
         $technician = Technician::with(['tickets' => fn ($q) => $q->with('asset'), 'user', 'schedules', 'scheduleExceptions'])
             ->findOrFail($id);
 
@@ -79,6 +101,10 @@ class TechnicianController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi tidak memiliki akses untuk menambah akun teknisi.');
+        }
+
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
             'email'       => 'nullable|email|max:255',
@@ -94,6 +120,10 @@ class TechnicianController extends Controller
 
     public function update(Request $request, Technician $technician)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi tidak memiliki akses untuk mengubah data teknisi.');
+        }
+
         $validated = $request->validate([
             'name'            => 'required|string|max:255',
             'email'           => 'nullable|email|max:255',
@@ -117,6 +147,10 @@ class TechnicianController extends Controller
 
     public function toggleOverride(Request $request, Technician $technician)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi tidak memiliki akses untuk mengubah duty status override.');
+        }
+
         $request->validate([
             'manual_override' => 'nullable|in:On Duty,Off Duty,auto',
         ]);
@@ -134,6 +168,10 @@ class TechnicianController extends Controller
 
     public function importSchedule(Request $request)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi tidak memiliki akses untuk mengimport jadwal.');
+        }
+
         $request->validate([
             'schedule_file' => 'nullable|file|mimes:xlsx,xls,csv,txt|max:10240',
             'schedule_text' => 'nullable|string',
@@ -533,6 +571,10 @@ class TechnicianController extends Controller
 
     public function storeException(Request $request)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi tidak memiliki akses untuk mencatat lembur & izin.');
+        }
+
         foreach (['start_at', 'end_at'] as $field) {
             if ($val = $request->input($field)) {
                 try {
@@ -570,11 +612,16 @@ class TechnicianController extends Controller
 
     public function destroyException($id)
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi tidak memiliki akses untuk menghapus lembur & izin.');
+        }
+
         $exception = TechnicianScheduleException::findOrFail($id);
         $exception->delete();
 
         return redirect()->back()->with('success', "Schedule exception removed successfully.");
     }
+
 
     public function dutyStatuses()
     {

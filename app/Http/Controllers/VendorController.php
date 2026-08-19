@@ -40,6 +40,10 @@ class VendorController extends Controller
      */
     public function create()
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Vendor.');
+        }
+
         return view('vendors.create');
     }
 
@@ -48,26 +52,22 @@ class VendorController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Vendor.');
+        }
+
         $request->validate([
-
             'vendor_code' => 'required|unique:vendors',
-
             'vendor_name' => 'required',
-
             'contact_person' => 'required|string|max:20',
-
             'phone' => 'required|string|max:99',
-
             'email' => 'required|email',
-
         ]);
 
         Vendor::create($request->all());
 
         return redirect()
-
             ->route('vendors.index')
-
             ->with('success', 'Vendor created successfully.');
     }
 
@@ -84,6 +84,10 @@ class VendorController extends Controller
      */
     public function edit(Vendor $vendor)
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Vendor.');
+        }
+
         return view('vendors.edit', compact('vendor'));
     }
 
@@ -92,6 +96,10 @@ class VendorController extends Controller
      */
     public function update(Request $request, Vendor $vendor)
     {
+        if ($request->user() && $request->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Vendor.');
+        }
+
         $validated = $request->validate([
             'vendor_code' => 'required|unique:vendors,vendor_code,' . $vendor->id,
             'vendor_name' => 'required',
@@ -112,10 +120,15 @@ class VendorController extends Controller
      */
     public function destroy(Vendor $vendor)
     {
+        if (request()->user() && request()->user()->isTeknisi()) {
+            abort(403, 'Role Teknisi hanya memiliki hak akses read-only pada data Vendor.');
+        }
+
         $vendor->delete();
 
         return redirect()
             ->route('vendors.index')
             ->with('success', 'Vendor deleted successfully.');
     }
+
 }

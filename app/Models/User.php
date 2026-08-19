@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role', 'google_email', 'phone'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -29,4 +29,46 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Check if user is Kepala IPSRS.
+     */
+    public function isKepalaIpsrs(): bool
+    {
+        return $this->role === 'kepala_ipsrs';
+    }
+
+    /**
+     * Check if user is Developer.
+     */
+    public function isDeveloper(): bool
+    {
+        return $this->role === 'developer' || session('developer_mode', false);
+    }
+
+    /**
+     * Check if user is Teknisi.
+     */
+    public function isTeknisi(): bool
+    {
+        return $this->role === 'teknisi';
+    }
+
+    /**
+     * Get associated technician record if any.
+     */
+    public function technician()
+    {
+        return $this->hasOne(Technician::class);
+    }
+
+    /**
+     * Check if user has any of given roles.
+     */
+    public function hasRole(string ...$roles): bool
+    {
+        return in_array($this->role, $roles, true);
+    }
 }
+
+

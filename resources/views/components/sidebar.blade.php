@@ -1,4 +1,5 @@
 @php
+    $isTeknisi = Auth::user() && Auth::user()->isTeknisi();
     $navigation = [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'active' => 'dashboard', 'icon' => 'dashboard'],
         ['section' => 'Asset management'],
@@ -12,12 +13,13 @@
         ['label' => 'Preventive', 'route' => 'preventives.index', 'active' => 'preventives.*', 'icon' => 'clock'],
         ['label' => 'Corrective', 'route' => 'correctives.index', 'active' => 'correctives.*', 'icon' => 'tool'],
         ['label' => 'Maintenance History', 'route' => 'history', 'active' => 'history', 'icon' => 'clock'],
-        ['label' => 'Technicians', 'route' => 'technicians.index', 'active' => 'technicians.*', 'icon' => 'technician'],
+        ['label' => $isTeknisi ? 'Jadwal' : 'Technicians', 'route' => 'technicians.index', 'active' => 'technicians.*', 'icon' => 'technician'],
         ['section' => 'System'],
-        ['label' => 'Reports', 'route' => 'reports', 'active' => 'reports', 'icon' => 'chart'],
+        ['label' => $isTeknisi ? 'Laporan Kerja' : 'Reports', 'route' => 'reports', 'active' => 'reports', 'icon' => 'chart'],
         ['label' => 'Settings', 'route' => 'settings', 'active' => 'settings', 'icon' => 'settings'],
     ];
 @endphp
+
 
 <aside class="cmms-sidebar fixed inset-y-6 left-6 z-30 flex flex-col transition-all duration-300 ease-in-out"
        :class="collapsed ? 'w-20 px-2' : 'w-72 px-0'">

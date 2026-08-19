@@ -26,13 +26,14 @@
                 </p>
             </div>
 
-            <a
-                href="{{ route('vendors.create') }}"
-                class="ds-button-primary">
+            @if(!Auth::user()->isTeknisi())
+                <a
+                    href="{{ route('vendors.create') }}"
+                    class="ds-button-primary">
+                    + New Vendor
+                </a>
+            @endif
 
-                + New Vendor
-
-            </a>
 
         </div>
 
@@ -65,13 +66,16 @@
 
 <x-table class="rounded-3xl border border-slate-200">
     @php
-        function sortUrl($field) {
-            return request()->fullUrlWithQuery([
-                'sort' => $field,
-                'direction' => request('sort') === $field && request('direction') === 'asc' ? 'desc' : 'asc',
-            ]);
+        if (!function_exists('sortUrl')) {
+            function sortUrl($field) {
+                return request()->fullUrlWithQuery([
+                    'sort' => $field,
+                    'direction' => request('sort') === $field && request('direction') === 'asc' ? 'desc' : 'asc',
+                ]);
+            }
         }
     @endphp
+
     <x-slot name="thead">
         <tr class="border-t transition hover:bg-slate-50">
             <th class="px-6 py-4 text-left">No</th>
@@ -95,14 +99,17 @@
             <td class="px-6 py-4 text-center">
                 <div class="flex items-center justify-center gap-4">
                     <a href="{{ route('vendors.show', $vendor) }}" class="text-blue-600 hover:underline">View</a>
-                    <a href="{{ route('vendors.edit', $vendor) }}" class="text-emerald-700 hover:underline">Edit</a>
-                    <form action="{{ route('vendors.destroy', $vendor) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this vendor?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline">Delete</button>
-                    </form>
+                    @if(!Auth::user()->isTeknisi())
+                        <a href="{{ route('vendors.edit', $vendor) }}" class="text-emerald-700 hover:underline">Edit</a>
+                        <form action="{{ route('vendors.destroy', $vendor) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this vendor?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:underline">Delete</button>
+                        </form>
+                    @endif
                 </div>
             </td>
+
         </tr>
     @empty
         <tr><td colspan="7" class="py-10 text-center text-slate-500">No vendor data available.</td></tr>

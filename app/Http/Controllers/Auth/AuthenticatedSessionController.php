@@ -7,6 +7,8 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -28,6 +30,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+        if ($user && $user->role === 'kepala_ipsrs') {
+            $request->session()->forget('developer_mode');
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
         if ($request->input('login_type') === 'developer' || $request->boolean('developer_mode')) {
             $request->session()->put('developer_mode', true);
             return redirect()->route('settings')->with('success', 'Logged in successfully under Developer Mode.');
@@ -41,12 +49,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function developerQuickLogin(Request $request): RedirectResponse
     {
-        $user = \App\Models\User::first();
+        $user = \App\Models\User::where('email', 'developer@hospital.com')->orWhere('role', 'developer')->first();
         if (! $user) {
             $user = \App\Models\User::create([
                 'name' => 'Developer Admin',
                 'email' => 'developer@hospital.com',
-                'password' => bcrypt('password'),
+                'role' => 'developer',
+                'password' => Hash::make('password'),
             ]);
         }
 
@@ -62,12 +71,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+        $email = $user ? $user->email : null;
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        if ($email) {
+            Cookie::queue('remembered_email', $email, 43200);
+        }
+
+        return redirect('/login');
     }
 }
+
