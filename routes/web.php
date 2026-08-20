@@ -128,6 +128,8 @@ Route::middleware('auth')->group(function () {
         ->name('reports.assets.pdf');
 
     Route::view('/settings', 'settings.index')->name('settings');
+    // User account creation (accessible to Kepala IPSRS and Developer)
+    Route::post('/settings/users', [\App\Http\Controllers\SettingsController::class, 'store'])->name('settings.users.store');
 
     Route::middleware('role:developer')->group(function () {
         Route::post('/settings/wipe', function (\Illuminate\Http\Request $request) {

@@ -54,6 +54,32 @@ class User extends Authenticatable
         return $this->role === 'teknisi';
     }
 
+    // Auto‑create linked technician when a teknisi user is created
+    protected static function booted(): void
+    {
+        static::created(function ($user) {
+            if ($user->role === 'teknisi') {
+                // Create a technician record linked to this user if it doesn't exist
+                \App\Models\Technician::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['name' => $user->name]
+                );
+            }
+        });
+        // Also handle role changes to/from teknisi on update
+        static::updated(function ($user) {
+            if ($user->isTeknisi()) {
+                \App\Models\Technician::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['name' => $user->name]
+                );
+            } else {
+                // If role changed away from teknisi, optionally delete linked technician
+                \App\Models\Technician::where('user_id', $user->id)->delete();
+            }
+        });
+    }
+
     /**
      * Get associated technician record if any.
      */

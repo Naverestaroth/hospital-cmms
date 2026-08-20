@@ -154,7 +154,7 @@
                                 Status
                             </a>
                         </th>
-
+                        <th class="px-6 py-4 text-left">Owner</th>
                         <th class="px-6 py-4 text-center">Action</th>
 
                     </tr>
@@ -211,6 +211,10 @@
                                 {{ ucwords($asset->status) }}
                             </span>
                             @endif
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $asset->user->name ?? 'Unassigned' }}
                         </td>
 
                         <td class="px-6 py-4 text-center">

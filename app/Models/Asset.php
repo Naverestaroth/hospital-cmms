@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -19,6 +20,7 @@ class Asset extends Model
         'procurement_year',
         'status',
         'description',
+        'user_id',
     ];
 
     protected $casts = [
@@ -49,8 +51,10 @@ class Asset extends Model
         return $this->hasMany(Ticket::class)->orderBy('created_at', 'desc');
     }
 
-    public function documents()
+    public function user()
     {
-        return $this->hasMany(Document::class)->orderBy('created_at', 'desc');
+        return $this->belongsTo(User::class);
     }
+
+    // existing relationships remain
 }

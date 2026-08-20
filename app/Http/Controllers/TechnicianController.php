@@ -35,8 +35,15 @@ class TechnicianController extends Controller
                 },
                 'tickets' => function ($q) {
                     $q->whereNotIn('status', ['Closed', 'Rejected', 'Cancelled', 'Completed'])->with('asset');
-                }
-            ])->orderBy('name')->get();
+                },
+                'user',
+            ])->where(function ($q) {
+                $q->where(function ($sub) {
+                    $sub->whereNotNull('email')->where('email', '<>', '');
+                })->orWhere(function ($sub) {
+                    $sub->whereNotNull('phone')->where('phone', '<>', '');
+                })->orWhereHas('user');
+            })->orderBy('name')->get();
         }
 
         $search = $request->input('search');

@@ -1,8 +1,9 @@
 <x-app-layout>
 
     <div class="space-y-6" x-data="{
-        activeTab: '{{ Auth::user()->isDeveloper() ? 'admin_tools' : 'profile' }}',
+        activeTab: '{{ $errors->any() ? 'user_role' : (request('tab') ?? (Auth::user()->isDeveloper() ? 'admin_tools' : 'profile')) }}',
         showModal: false,
+        showAddUser: {{ $errors->any() ? 'true' : 'false' }},
         editProfileModalOpen: false,
         selectedTargets: []
     }">
@@ -406,7 +407,10 @@
                     <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
                         <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Daftar Akun Pengguna Terdaftar</h3>
-                            <span class="text-xs font-semibold text-slate-500">Total: {{ \App\Models\User::count() }} User</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-semibold text-slate-500">Total: {{ \App\Models\User::count() }} User</span>
+                                <button type="button" @click="showAddUser = true" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-3 py-1 rounded-md" >+ Tambah Pengguna</button>
+                            </div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs text-slate-600">
@@ -731,6 +735,76 @@
             </div>
         </div>
         @endif
+
+    <!-- Add User Modal (top-level, outside overflow-hidden containers) -->
+    <div x-show="showAddUser" x-cloak
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 relative z-[10000] border border-slate-100"
+             @click.away="showAddUser = false">
+            <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <svg viewBox="0 0 24 24" class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                Tambah Pengguna Baru
+            </h2>
+
+            @if($errors->any())
+                <div class="rounded-2xl border border-red-300 bg-red-50 p-3 mb-4">
+                    <p class="text-sm font-bold text-red-800 mb-1">Gagal menambah pengguna:</p>
+                    <ul class="list-disc list-inside text-xs text-red-700 space-y-0.5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('settings.users.store') }}" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1" for="add_user_name">Nama</label>
+                    <input type="text" name="name" id="add_user_name" required value="{{ old('name') }}"
+                           class="block w-full rounded-2xl border-slate-300 py-3 px-4 focus:border-emerald-500 focus:ring-emerald-500 text-sm shadow-sm" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1" for="add_user_email">Email Login</label>
+                    <input type="email" name="email" id="add_user_email" required value="{{ old('email') }}"
+                           class="block w-full rounded-2xl border-slate-300 py-3 px-4 focus:border-emerald-500 focus:ring-emerald-500 text-sm shadow-sm" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1" for="add_user_password">Password</label>
+                    <input type="password" name="password" id="add_user_password" required minlength="8"
+                           class="block w-full rounded-2xl border-slate-300 py-3 px-4 focus:border-emerald-500 focus:ring-emerald-500 text-sm shadow-sm" />
+                    <p class="mt-1 text-xs text-slate-400">Minimal 8 karakter</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1" for="add_user_role">Role</label>
+                    <select name="role" id="add_user_role" required
+                            class="block w-full rounded-2xl border-slate-300 py-3 px-4 focus:border-emerald-500 focus:ring-emerald-500 text-sm shadow-sm">
+                        <option value="kepala_ipsrs" {{ old('role') == 'kepala_ipsrs' ? 'selected' : '' }}>Kepala IPSRS</option>
+                        <option value="teknisi" {{ old('role') == 'teknisi' ? 'selected' : '' }}>Teknisi</option>
+                        <option value="developer" {{ old('role') == 'developer' ? 'selected' : '' }}>Developer</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1" for="add_user_google_email">Google Email (optional)</label>
+                    <input type="email" name="google_email" id="add_user_google_email" value="{{ old('google_email') }}"
+                           class="block w-full rounded-2xl border-slate-300 py-3 px-4 focus:border-emerald-500 focus:ring-emerald-500 text-sm shadow-sm" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1" for="add_user_phone">No. Telepon (optional)</label>
+                    <input type="text" name="phone" id="add_user_phone" value="{{ old('phone') }}"
+                           class="block w-full rounded-2xl border-slate-300 py-3 px-4 focus:border-emerald-500 focus:ring-emerald-500 text-sm shadow-sm" />
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+                    <button type="button" @click="showAddUser = false"
+                            class="rounded-2xl bg-slate-100 hover:bg-slate-200 px-5 py-2.5 font-semibold text-slate-700 transition text-sm cursor-pointer">Batal</button>
+                    <button type="submit"
+                            class="rounded-2xl bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 font-semibold text-white transition text-sm shadow-sm cursor-pointer">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     </div>
 

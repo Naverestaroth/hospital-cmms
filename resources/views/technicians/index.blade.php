@@ -158,12 +158,13 @@
                                 <h2 class="text-xl font-bold text-slate-900 truncate" title="{{ $tech->name }}">
                                     {{ $tech->name }}
                                 </h2>
-                                <p class="text-xs text-slate-500 mt-0.5 truncate" title="{{ $tech->email }}">
-                                    {{ $tech->email ?: 'No email assigned' }}
+                                <p class="text-xs text-slate-500 mt-0.5 truncate" title="{{ $tech->email ?? $tech->user->email ?? '' }}">
+                                    {{ $tech->email ?? $tech->user->email ?? 'No email assigned' }}
                                 </p>
-                                @if($tech->phone)
-                                    <p class="text-xs text-slate-400 mt-0.5 truncate" title="{{ $tech->phone }}">
-                                        {{ $tech->phone }}
+                                @php $phone = $tech->phone ?? $tech->user->phone ?? null; @endphp
+                                @if($phone)
+                                    <p class="text-xs text-slate-400 mt-0.5 truncate" title="{{ $phone }}">
+                                        {{ $phone }}
                                     </p>
                                 @endif
                             </div>
