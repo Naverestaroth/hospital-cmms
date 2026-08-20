@@ -22,7 +22,8 @@ class SettingsController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:kepala_ipsrs,teknisi,developer',
+            'role' => 'required|in:user,kepala_ipsrs,teknisi,developer',
+
             'google_email' => 'nullable|email',
             'phone' => 'nullable|string|max:20',
         ]);

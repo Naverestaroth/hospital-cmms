@@ -781,10 +781,12 @@
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="add_user_role">Role</label>
                     <select name="role" id="add_user_role" required
                             class="block w-full rounded-2xl border-slate-300 py-3 px-4 focus:border-emerald-500 focus:ring-emerald-500 text-sm shadow-sm">
+                        <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
                         <option value="kepala_ipsrs" {{ old('role') == 'kepala_ipsrs' ? 'selected' : '' }}>Kepala IPSRS</option>
                         <option value="teknisi" {{ old('role') == 'teknisi' ? 'selected' : '' }}>Teknisi</option>
                         <option value="developer" {{ old('role') == 'developer' ? 'selected' : '' }}>Developer</option>
                     </select>
+
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1" for="add_user_google_email">Google Email (optional)</label>

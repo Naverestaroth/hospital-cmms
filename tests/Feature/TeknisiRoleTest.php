@@ -118,4 +118,25 @@ class TeknisiRoleTest extends TestCase
         $response->assertSee('Jadwal');
         $response->assertSee('Laporan Kerja');
     }
+
+    public function test_admin_can_create_user_with_user_role()
+    {
+        $admin = User::factory()->create([
+            'role' => 'kepala_ipsrs',
+        ]);
+
+        $response = $this->actingAs($admin)->post('/settings/users', [
+            'name' => 'Regular User Test',
+            'email' => 'regularuser@hospital.com',
+            'password' => 'Password123!',
+            'role' => 'user',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('users', [
+            'email' => 'regularuser@hospital.com',
+            'role' => 'user',
+        ]);
+    }
 }
+
