@@ -8,8 +8,11 @@ use App\Models\Technician;
 use App\Models\User;
 use App\Notifications\TicketCreatedNotification;
 use App\Notifications\TicketCompletedNotification;
+use App\Notifications\NewTicketBroadcastNotification;
+use App\Notifications\TicketAssignedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
+
 
 
 class TicketController extends Controller
@@ -185,6 +188,25 @@ class TicketController extends Controller
         if ($kepalaUsers->isNotEmpty()) {
             Notification::send($kepalaUsers, new TicketCreatedNotification($ticket));
         }
+
+        // Phase 3 Notification: Broadcast to On Duty Technicians with active user accounts
+        $onDutyTechUsers = Technician::onDuty()
+            ->with('user')
+            ->get()
+            ->filter(fn($tech) => $tech->user !== null)
+            ->map(fn($tech) => $tech->user)
+            ->unique('id');
+
+
+        if ($onDutyTechUsers->isNotEmpty()) {
+            Notification::send($onDutyTechUsers, new NewTicketBroadcastNotification($ticket));
+        }
+
+        // Phase 3 Notification: Notify pre-assigned technicians if any
+        if (!empty($request->technician_ids)) {
+            $this->notifyAssignedTechnicians($ticket, $request->technician_ids);
+        }
+
 
         return redirect()
             ->route('tickets.index')
@@ -369,6 +391,9 @@ class TicketController extends Controller
         $techNames = Technician::whereIn('id', $request->technician_ids)->pluck('name')->toArray();
         $ticket->logActivity('Assigned Technicians', 'IPSRS Coordinator', 'Assigned to ' . implode(', ', $techNames));
 
+        // Phase 3 Notification: Notify assigned technicians
+        $this->notifyAssignedTechnicians($ticket, $request->technician_ids);
+
         return redirect()
             ->back()
             ->with('success', 'Technicians assigned successfully.');
@@ -401,10 +426,31 @@ class TicketController extends Controller
 
         $ticket->logActivity('Self Assigned', $technician->name, "Self Assigned by {$technician->name}");
 
+        // Phase 3 Notification: Notify self-assigned technician
+        $this->notifyAssignedTechnicians($ticket, [$technician->id]);
+
         return redirect()
             ->back()
             ->with('success', "{$technician->name} self-assigned to this ticket.");
     }
+
+    /**
+     * Helper to send TicketAssignedNotification to assigned technician(s) with active user accounts.
+     */
+    private function notifyAssignedTechnicians(Ticket $ticket, array $technicianIds): void
+    {
+        $techUsers = Technician::whereIn('id', $technicianIds)
+            ->with('user')
+            ->get()
+            ->filter(fn($tech) => $tech->user !== null)
+            ->map(fn($tech) => $tech->user)
+            ->unique('id');
+
+        if ($techUsers->isNotEmpty()) {
+            Notification::send($techUsers, new TicketAssignedNotification($ticket));
+        }
+    }
+
 
     // Workflow Actions: Accept Ticket
     public function accept(Request $request, Ticket $ticket)
