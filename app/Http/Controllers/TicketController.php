@@ -5,7 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use App\Models\Asset;
 use App\Models\Technician;
+use App\Models\User;
+use App\Notifications\TicketCreatedNotification;
+use App\Notifications\TicketCompletedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+
 
 class TicketController extends Controller
 {
@@ -175,10 +180,17 @@ class TicketController extends Controller
             $ticket->logActivity('Pre-assigned Technicians', $request->reported_by, 'Pre-assigned to ' . implode(', ', $techNames));
         }
 
+        // Phase 1 Notification: Notify Kepala IPSRS about new ticket
+        $kepalaUsers = User::where('role', 'kepala_ipsrs')->get();
+        if ($kepalaUsers->isNotEmpty()) {
+            Notification::send($kepalaUsers, new TicketCreatedNotification($ticket));
+        }
+
         return redirect()
             ->route('tickets.index')
             ->with('success', "Ticket {$ticketCode} created successfully and is waiting for approval.");
     }
+
 
     public function show(Ticket $ticket)
     {
@@ -431,6 +443,13 @@ class TicketController extends Controller
 
         $ticket->update(['status' => $newStatus]);
 
+        if (in_array($newStatus, ['Completed', 'Repair Completed', 'Corrective Report Completed'])) {
+            $kepalaUsers = User::where('role', 'kepala_ipsrs')->get();
+            if ($kepalaUsers->isNotEmpty()) {
+                Notification::send($kepalaUsers, new TicketCompletedNotification($ticket));
+            }
+        }
+
         $performer = 'IPSRS Team';
         $ticket->logActivity("Status Changed to {$newStatus}", $performer, $request->notes);
 
@@ -438,6 +457,7 @@ class TicketController extends Controller
             ->back()
             ->with('success', "Ticket status changed from {$oldStatus} to {$newStatus}.");
     }
+
 
     // Workflow Actions: Close Ticket
     public function close(Request $request, Ticket $ticket)

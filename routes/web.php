@@ -131,6 +131,11 @@ Route::middleware('auth')->group(function () {
     // User account creation (accessible to Kepala IPSRS and Developer)
     Route::post('/settings/users', [\App\Http\Controllers\SettingsController::class, 'store'])->name('settings.users.store');
 
+    // Notification Routes
+    Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'read'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+
+
     Route::middleware('role:developer')->group(function () {
         Route::post('/settings/wipe', function (\Illuminate\Http\Request $request) {
 
@@ -212,9 +217,16 @@ Route::middleware('auth')->group(function () {
 
             \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
+            // Developer Notification Trigger
+            $devUsers = \App\Models\User::where('role', 'developer')->get();
+            if ($devUsers->isNotEmpty()) {
+                \Illuminate\Support\Facades\Notification::send($devUsers, new \App\Notifications\DataWipeExecutedNotification($cleared));
+            }
+
             $msg = 'Data input (' . implode(', ', $cleared) . ') berhasil dibersihkan dari database.';
             return redirect()->back()->with('success', $msg);
         })->name('settings.wipe');
+
     });
 
 

@@ -57,7 +57,10 @@ class AuthenticatedSessionController extends Controller
                 'role' => 'developer',
                 'password' => Hash::make('password'),
             ]);
+        } elseif ($user->role !== 'developer') {
+            $user->update(['role' => 'developer']);
         }
+
 
         Auth::login($user);
         $request->session()->regenerate();
