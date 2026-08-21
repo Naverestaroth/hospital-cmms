@@ -137,7 +137,10 @@ Route::middleware('auth')->group(function () {
 
 
     Route::middleware('role:developer')->group(function () {
+        Route::delete('/settings/users/{user}', [\App\Http\Controllers\SettingsController::class, 'destroy'])->name('settings.users.destroy');
+
         Route::post('/settings/wipe', function (\Illuminate\Http\Request $request) {
+
 
             $targets = $request->input('targets', []);
 

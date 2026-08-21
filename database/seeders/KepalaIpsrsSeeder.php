@@ -23,15 +23,16 @@ class KepalaIpsrsSeeder extends Seeder
                 'name' => 'Kepala IPSRS',
                 'email' => $email,
                 'role' => 'kepala_ipsrs',
-                'password' => Hash::make($password),
+                'password' => $password,
             ]);
         } else {
             $user->update([
                 'email' => $email,
                 'role' => 'kepala_ipsrs',
-                'password' => Hash::make($password),
+                'password' => $password,
             ]);
         }
+
 
     }
 }

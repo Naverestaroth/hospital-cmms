@@ -422,6 +422,9 @@
                                         <th class="px-4 py-3">No. Telepon</th>
                                         <th class="px-4 py-3">Role</th>
                                         <th class="px-4 py-3">Status</th>
+                                        @if(Auth::user()->isDeveloper())
+                                            <th class="px-4 py-3 text-right">Aksi</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
@@ -447,8 +450,27 @@
                                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
                                                 </span>
                                             </td>
+                                            @if(Auth::user()->isDeveloper())
+                                                <td class="px-4 py-3 text-right">
+                                                    @if($u->id !== Auth::user()->id)
+                                                        <form action="{{ route('settings.users.destroy', $u->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun {{ addslashes($u->name) }} ({{ $u->email }})?');" class="inline-block">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1 rounded-lg transition" title="Hapus Akun Pengguna">
+                                                                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2">
+                                                                    <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+                                                                </svg>
+                                                                Hapus
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <span class="text-[11px] font-semibold text-slate-400 italic">Akun Anda</span>
+                                                    @endif
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
+
                                 </tbody>
                             </table>
                         </div>

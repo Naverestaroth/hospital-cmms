@@ -17,8 +17,15 @@ class DashboardTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $techOn = Technician::create(['name' => 'Budi OnDuty', 'duty_status' => 'On Duty']);
-        $techOff = Technician::create(['name' => 'Sari OffDuty', 'duty_status' => 'Off Duty']);
+        $userTechOn = User::factory()->create(['name' => 'Budi OnDuty', 'role' => 'teknisi']);
+        $userTechOff = User::factory()->create(['name' => 'Sari OffDuty', 'role' => 'teknisi']);
+
+        $techOn = Technician::where('user_id', $userTechOn->id)->first();
+        $techOn->update(['duty_status' => 'On Duty']);
+
+        $techOff = Technician::where('user_id', $userTechOff->id)->first();
+        $techOff->update(['duty_status' => 'Off Duty']);
+
 
         Preventive::create([
             'room' => 'IGD',

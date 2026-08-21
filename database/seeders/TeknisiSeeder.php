@@ -24,7 +24,7 @@ class TeknisiSeeder extends Seeder
                 'name' => 'Teknisi IPSRS',
                 'email' => $email,
                 'role' => 'teknisi',
-                'password' => Hash::make($password),
+                'password' => $password,
                 'google_email' => 'teknisi.google@hospital.com',
                 'phone' => '081234567890',
             ]);
@@ -32,9 +32,10 @@ class TeknisiSeeder extends Seeder
             $user->update([
                 'email' => $email,
                 'role' => 'teknisi',
-                'password' => Hash::make($password),
+                'password' => $password,
             ]);
         }
+
 
         // Link with Technician record
         $technician = Technician::where('user_id', $user->id)

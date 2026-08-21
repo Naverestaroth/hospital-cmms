@@ -78,7 +78,13 @@ class User extends Authenticatable
                 \App\Models\Technician::where('user_id', $user->id)->delete();
             }
         });
+
+        static::deleting(function ($user) {
+            \App\Models\Technician::where('user_id', $user->id)->delete();
+        });
     }
+
+
 
     /**
      * Get associated technician record if any.

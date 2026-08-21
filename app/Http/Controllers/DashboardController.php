@@ -158,6 +158,9 @@ class DashboardController extends Controller
         $allCorrectives = Corrective::whereNotNull('technician')->get();
 
         $techniciansWorkload = Technician::query()
+            ->whereHas('user', function ($q) {
+                $q->where('role', 'teknisi');
+            })
             ->withCount(['tickets' => function ($q) {
                 $q->whereNotIn('status', ['Closed', 'Rejected', 'Cancelled']);
             }])
@@ -195,12 +198,17 @@ class DashboardController extends Controller
 
         $maxActiveTickets = max(1, $techniciansWorkload->max('total_workload') ?? 1);
 
-        $totalTechs = Technician::count();
-        $busyTechsCount = Technician::whereHas('tickets', function ($q) {
+        $totalTechs = Technician::whereHas('user', function ($q) {
+            $q->where('role', 'teknisi');
+        })->count();
+        $busyTechsCount = Technician::whereHas('user', function ($q) {
+            $q->where('role', 'teknisi');
+        })->whereHas('tickets', function ($q) {
             $q->whereNotIn('status', ['Closed', 'Rejected', 'Cancelled']);
         })->count();
         $availableTechsCount = max(0, $totalTechs - $busyTechsCount);
         $technicianAvailabilityPct = $totalTechs > 0 ? round(($availableTechsCount / $totalTechs) * 100) : 100;
+
 
         // 6. Recent Ticket Activities
         $recentActivities = TicketActivity::with('ticket')->latest()->take(10)->get();

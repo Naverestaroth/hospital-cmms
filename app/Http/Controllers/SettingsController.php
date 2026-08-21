@@ -28,11 +28,31 @@ class SettingsController extends Controller
             'phone' => 'nullable|string|max:20',
         ]);
 
-        // Hash the password (model casts also hash, but ensure)
-        $validated['password'] = Hash::make($validated['password']);
-
         User::create($validated);
+
 
         return redirect()->route('settings', ['tab' => 'user_role'])->with('success', 'Akun pengguna baru berhasil dibuat.');
     }
+
+    /**
+     * Delete a user account (Developer only).
+     */
+    public function destroy(Request $request, User $user)
+    {
+        $currentUser = $request->user();
+        if (!$currentUser || !$currentUser->isDeveloper()) {
+            abort(403, 'Unauthorized. Hanya Developer yang dapat menghapus akun pengguna.');
+        }
+
+        if ($currentUser->id === $user->id) {
+            return redirect()->route('settings', ['tab' => 'user_role'])->with('error', 'Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan.');
+        }
+
+        $userName = $user->name;
+        $userEmail = $user->email;
+        $user->delete();
+
+        return redirect()->route('settings', ['tab' => 'user_role'])->with('success', "Akun pengguna {$userName} ({$userEmail}) berhasil dihapus.");
+    }
 }
+
